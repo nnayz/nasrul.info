@@ -6,6 +6,11 @@ type Resource = {
 
 export const resources: Resource[] = [
   {
+    title: "Understanding Git Worktrees",
+    description: "How git worktrees are different from normal git workflows.",
+    link: "https://gist.github.com/ThomasFrans/ab1cb531410ab0cd0616a88a735dd840"
+  },
+  {
     title: "SVG Path Commands",
     description: "Understanding SVG Paths and cryptic 'd' attributes.",
     link: "https://www.nan.fyi/svg-paths",
