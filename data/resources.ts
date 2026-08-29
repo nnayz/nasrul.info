@@ -6,6 +6,11 @@ type Resource = {
 
 export const resources: Resource[] = [
   {
+    title: "Uber Engineering",
+    description: "real systems, scaling, infra + AI",
+    link: "real systems, scaling, infra + AI"
+  },
+  {
     title: "Understanding Git Worktrees",
     description: "How git worktrees are different from normal git workflows.",
     link: "https://gist.github.com/ThomasFrans/ab1cb531410ab0cd0616a88a735dd840"
