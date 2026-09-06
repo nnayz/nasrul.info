@@ -1,0 +1,17 @@
+---
+title: Pettoo
+summary: A care platform that connects pet owners with the services they need.
+kind: freelance
+company: Pettoo UG
+role: Software engineer
+start: 2025-06
+end: 2025-09
+---
+
+Pettoo needed a backend that could list services, take bookings, sell products, and connect pet owners without turning into an unmaintainable pile of endpoints.
+
+I designed the schema and core business logic on FastAPI and PostgreSQL, added Elasticsearch for search, and set up CI/CD and container deploys on GCP. I also coordinated a team of three so API shape and quality stayed consistent.
+
+Search and booking shared one data model carefully enough that product and services did not fork into separate worlds. Elasticsearch added ops surface area, but owner-facing discovery needed it more than SQL ILIKE could give.
+
+You can [visit Pettoo](https://pettoo.de) to see the public site; the engagement ran through September 2025.

@@ -1,0 +1,16 @@
+---
+title: ACL Anthology Search
+summary: Find research papers by what they mean, not the keywords they happen to use.
+kind: research
+role: Research project
+start: 2025-12
+end: 2026-02
+---
+
+The ACL Anthology is huge, and keyword search misses papers that say the same idea in different words. Researchers hunting related work needed something closer to meaning than exact phrases.
+
+I built a semantic search system over anthology abstracts: offline embedding and indexing into Qdrant, then online retrieval with LLM query reformulation and reciprocal rank fusion. You can ask in plain language or paste a paper ID and treat its abstract as the query. A FastAPI backend and React UI use LangChain to coordinate retrieval and stream answers with inline citations.
+
+Splitting Fireworks for embeddings from Groq for reformulation kept costs and latency manageable, at the price of two providers and a clear offline/online boundary. RRF over multiple reformulations improved recall without a heavy re-ranker.
+
+The project is open source. You can [try the live demo](https://acla.nasrul.info) or [explore the full pipeline on GitHub](https://github.com/nnayz/acl-anthology-rag).

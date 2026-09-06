@@ -4,7 +4,8 @@ import { createRouter } from '@tanstack/react-router';
 export function getRouter() {
   return createRouter({
     defaultPreload: 'intent',
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 60_000,
+    defaultStaleTime: Infinity,
     routeTree,
     scrollRestoration: true,
   });

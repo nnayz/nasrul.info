@@ -1,6 +1,7 @@
 import { cn } from '@/lib/className';
 import DateViewer from '@components/DateView';
 import InternalLink from '@components/InternalLink';
+import PageInset from '@components/PageInset';
 import { Link } from '@tanstack/react-router';
 import { allWritings } from 'content-collections';
 import { motion } from 'framer-motion';
@@ -83,8 +84,8 @@ function EmptyState() {
 export default function Writing() {
   const { posts } = getData();
   return (
-    <motion.div
-      className="page-gutter flex w-full max-w-xl flex-col gap-8"
+    <PageInset
+      className="flex flex-col gap-8"
       variants={stagger}
       initial="initial"
       animate="animate"
@@ -129,6 +130,6 @@ export default function Writing() {
       ) : (
         <EmptyState />
       )}
-    </motion.div>
+    </PageInset>
   );
 }

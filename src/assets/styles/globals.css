@@ -1,61 +1,44 @@
 @import 'tailwindcss' source(none);
 @plugin '@tailwindcss/typography';
 @source '../../**/*.{js,ts,jsx,tsx}';
-@source '../../../data/**/*.{md,mdx}';
+@source '../../../content/**/*.{md,mdx}';
 @source inline('{h-48,h-72,h-96}');
 @custom-variant dark (&:where(.dark, .dark *));
 
 @font-face {
-  font-family: 'OpenAI Sans';
+  font-family: 'Satoshi';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('https://cdn.openai.com/common/fonts/openai-sans/v4/OpenAISans-Regular.woff2')
-    format('woff2');
+  src: url('/static/fonts/satoshi-400.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'OpenAI Sans';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('https://cdn.openai.com/common/fonts/openai-sans/v4/OpenAISans-RegularItalic.woff2')
-    format('woff2');
-}
-
-@font-face {
-  font-family: 'OpenAI Sans';
+  font-family: 'Satoshi';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('https://cdn.openai.com/common/fonts/openai-sans/v4/OpenAISans-Medium.woff2')
-    format('woff2');
+  src: url('/static/fonts/satoshi-500.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'OpenAI Sans';
+  font-family: 'Inter Arrow';
   font-style: normal;
-  font-weight: 600;
+  font-weight: 400;
   font-display: swap;
-  src: url('https://cdn.openai.com/common/fonts/openai-sans/v4/OpenAISans-Semibold.woff2')
-    format('woff2');
-}
-
-@font-face {
-  font-family: 'OpenAI Sans';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('https://cdn.openai.com/common/fonts/openai-sans/v4/OpenAISans-Bold.woff2')
-    format('woff2');
+  src: url('/static/fonts/inter-arrow.woff2') format('woff2');
+  unicode-range: U+21A9;
 }
 
 @theme {
-  --font-sans: 'OpenAI Sans', 'OpenAI Sans Variable Scripts', sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Noto Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono: 'SF Mono', Consolas, 'Liberation Mono', ui-monospace, monospace;
-  /* Menu links and expressive display moments keep Syne. */
-  --font-display: 'Syne', sans-serif;
+  --font-display: var(--font-sans);
   --font-body: var(--font-sans);
+  --font-menu: 'Satoshi', var(--font-sans);
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -65,6 +48,8 @@
   html {
     @apply max-h-screen text-sm antialiased sm:text-base;
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   * {
@@ -74,9 +59,6 @@
   body {
     @apply m-0 bg-stone-50 p-0;
     font-family: var(--font-sans);
-    font-feature-settings:
-      'liga' on,
-      'calt' on;
   }
 
   .dark body {
@@ -216,6 +198,17 @@
     padding: var(--page-gutter);
   }
 
+  .page-inset {
+    width: 100%;
+    padding: 132px 32px 200px 96px;
+  }
+
+  @media (max-width: 720px) {
+    .page-inset {
+      padding: 108px 24px 160px 60px;
+    }
+  }
+
   .link-hover {
     @apply relative;
   }
@@ -326,5 +319,59 @@
 @media (prefers-reduced-motion: reduce) {
   .stage-grid {
     display: none;
+  }
+}
+
+/* Soft top fade behind the nav — content scrolls under it cleanly. */
+.nav-fade {
+  --nav-fade-bg: var(--notion-bg, var(--color-stone-50));
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 190px;
+  z-index: 40;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--nav-fade-bg) 0%,
+    var(--nav-fade-bg) 36%,
+    transparent 100%
+  );
+}
+
+.dark .nav-fade {
+  --nav-fade-bg: var(--notion-bg, var(--color-neutral-950));
+}
+
+@supports (-webkit-mask-image: linear-gradient(to bottom, #000, transparent)) {
+  .nav-fade {
+    background: var(--nav-fade-bg);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 36%,
+      rgba(0, 0, 0, 0.957) 44%,
+      rgba(0, 0, 0, 0.844) 52%,
+      rgba(0, 0, 0, 0.684) 60%,
+      rgba(0, 0, 0, 0.5) 68%,
+      rgba(0, 0, 0, 0.316) 76%,
+      rgba(0, 0, 0, 0.156) 84%,
+      rgba(0, 0, 0, 0.043) 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 36%,
+      rgba(0, 0, 0, 0.957) 44%,
+      rgba(0, 0, 0, 0.844) 52%,
+      rgba(0, 0, 0, 0.684) 60%,
+      rgba(0, 0, 0, 0.5) 68%,
+      rgba(0, 0, 0, 0.316) 76%,
+      rgba(0, 0, 0, 0.156) 84%,
+      rgba(0, 0, 0, 0.043) 92%,
+      transparent 100%
+    );
   }
 }

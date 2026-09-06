@@ -1,56 +1,48 @@
-import EmailLink from './EmailLink';
-import ExternalLink from './ExternalLink';
+import { isExternalHttpHref } from './ExternalLink';
 import Flashcard from './Flashcard';
-import InternalLink, { InternalAnchor, isSameSiteHref } from './InternalLink';
-import type { LinkProps } from '@tanstack/react-router';
+import { Link, type LinkProps } from '@tanstack/react-router';
 import type { ComponentPropsWithoutRef } from 'react';
 
-const CustomLink = ({
+function ContentLink({
   children,
   href = '',
   ...props
-}: ComponentPropsWithoutRef<'a'>) => {
-  const isRouterLink = href.startsWith('/');
-
-  if (isRouterLink) {
+}: ComponentPropsWithoutRef<'a'>) {
+  if (href.startsWith('/') && !href.startsWith('//')) {
     return (
-      <InternalLink to={href as LinkProps['to']} {...props}>
+      <Link {...props} to={href as LinkProps['to']}>
         {children}
-      </InternalLink>
+      </Link>
     );
   }
-
-  if (href.startsWith('mailto:')) {
+  if (isExternalHttpHref(href)) {
     return (
-      <EmailLink href={href as `mailto:${string}`} {...props}>
+      <a
+        {...props}
+        data-external=""
+        href={href}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         {children}
-      </EmailLink>
+      </a>
     );
   }
-
-  if (isSameSiteHref(href)) {
-    return (
-      <InternalAnchor href={href} {...props}>
-        {children}
-      </InternalAnchor>
-    );
-  }
-
   return (
-    <ExternalLink href={href} {...props}>
+    <a {...props} href={href}>
       {children}
-    </ExternalLink>
+    </a>
   );
-};
+}
 
-function RoundedImage(props: any) {
-  return <img alt={props.alt} className="rounded-lg" {...props} />;
+function ContentImage({ alt = '', ...props }: ComponentPropsWithoutRef<'img'>) {
+  return <img alt={alt} decoding="async" loading="lazy" {...props} />;
 }
 
 const components = {
   Flashcard,
-  Image: RoundedImage,
-  a: CustomLink,
+  Image: ContentImage,
+  a: ContentLink,
+  img: ContentImage,
 };
-
 export default components;

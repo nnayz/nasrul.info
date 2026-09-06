@@ -1,10 +1,12 @@
 import WorkProject from '../pages/WorkProject';
-import { findWork } from '@data/work';
 import { createFileRoute, notFound } from '@tanstack/react-router';
+import { allHighlights } from 'content-collections';
 
 export const Route = createFileRoute('/highlights_/$slug')({
   beforeLoad: ({ params }) => {
-    if (!findWork(params.slug)) throw notFound();
+    if (!allHighlights.some((highlight) => highlight.slug === params.slug)) {
+      throw notFound();
+    }
   },
   component: HighlightProjectRoute,
 });

@@ -7,6 +7,7 @@ import { nitro } from 'nitro/vite';
 import path from 'path';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
+import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
@@ -20,7 +21,7 @@ export default defineConfig({
     tanstackStart(),
     react(),
     mdx({
-      remarkPlugins: [remarkGfm] as any,
+      remarkPlugins: [remarkFrontmatter, remarkGfm] as any,
       rehypePlugins: [
         rehypeSlug as any,
         [

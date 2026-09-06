@@ -116,7 +116,7 @@ export default function MenuOverlay() {
                 onMouseEnter={() => play('hover')}
                 type="button"
               >
-                <span className="[font-family:var(--font-body)] text-base font-bold tracking-[-0.02em] text-black">
+                <span className="font-menu text-base font-medium tracking-[-0.02em] text-black">
                   close
                 </span>
                 <span className="flex h-8 w-8 items-center justify-center rounded-full text-black transition-transform duration-300 group-hover:rotate-90">
@@ -140,12 +140,12 @@ export default function MenuOverlay() {
                       }}
                     >
                       <Link
-                        className="group flex items-baseline gap-4 [font-family:var(--font-display)]"
+                        className="group font-menu flex items-baseline gap-4"
                         onMouseEnter={() => play('hover')}
                         to={p.to}
                       >
                         <span
-                          className="inline-flex items-baseline gap-3 font-bold tracking-[-0.04em] opacity-35 transition-opacity group-hover:opacity-100 data-[active]:opacity-100"
+                          className="font-menu inline-flex items-baseline gap-3 font-normal tracking-[-0.045em] opacity-40 transition-opacity group-hover:opacity-100 data-[active]:opacity-100"
                           data-active={active || undefined}
                           style={{
                             fontSize: 'clamp(2.25rem, 7vw, 4.5rem)',
