@@ -118,6 +118,8 @@
   }
   :root {
     --page-gutter: 1.5rem;
+    --page-inset-x: 60px;
+    --page-inset-y: 108px;
     --text-primary: rgb(0 0 0);
     --text-secondary: rgb(0 0 0 / 80%);
     --text-tertiary: rgb(0 0 0 / 60%);
@@ -152,6 +154,13 @@
   @media (min-width: 640px) {
     :root {
       --page-gutter: 2.5rem;
+    }
+  }
+
+  @media (min-width: 721px) {
+    :root {
+      --page-inset-x: 96px;
+      --page-inset-y: 132px;
     }
   }
 
@@ -200,12 +209,17 @@
 
   .page-inset {
     width: 100%;
-    padding: 132px 32px 200px 96px;
+    padding: var(--page-inset-y) 32px 200px var(--page-inset-x);
+  }
+
+  .page-inset.article-page {
+    padding-top: calc(var(--page-inset-y) + 3.75rem);
   }
 
   @media (max-width: 720px) {
     .page-inset {
-      padding: 108px 24px 160px 60px;
+      padding-right: 24px;
+      padding-bottom: 160px;
     }
   }
 

@@ -71,26 +71,27 @@ SOFTWARE.
 .article-page ::selection {
   background: var(--notion-selection);
 }
-.article-page .page-back {
+.page-back {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  height: 36px;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 400;
-  color: var(--notion-faint);
+  color: var(--notion-faint, rgba(0, 0, 0, 0.45));
   text-decoration: none;
-  margin: 0 0 24px;
+  margin: 0;
   transition: color 140ms ease;
 }
-.article-page .page-back:hover {
-  color: var(--notion-ink);
+.page-back:hover {
+  color: var(--notion-ink, #18181b);
 }
-.article-page .page-back::after {
+.page-back::after {
   content: none !important;
 }
-.article-page .back-arrow {
+.back-arrow {
   font-family: 'Inter Arrow', Inter, system-ui, sans-serif;
   font-size: 16px;
   font-weight: 400;
@@ -99,7 +100,7 @@ SOFTWARE.
   font-variant-emoji: text;
   transition: transform 140ms ease;
 }
-.article-page .page-back:hover .back-arrow {
+.page-back:hover .back-arrow {
   transform: translateX(-2px);
 }
 /* Notion-style content typography

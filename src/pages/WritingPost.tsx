@@ -23,7 +23,6 @@ export default function WritingPost({ slug }: { slug: string }) {
         type="application/ld+json"
       />
       <ArticleLayout
-        backTo="/writing"
         editUrl={`https://github.com/nnayz/me/edit/main/content/writing/${slug}.mdx`}
         image={post.image}
         key={slug}
