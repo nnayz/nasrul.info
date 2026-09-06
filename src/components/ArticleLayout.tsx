@@ -31,7 +31,7 @@ export default function ArticleLayout({
     let sectionObserver: IntersectionObserver | undefined;
     let active = true;
 
-    const post = body.closest('.post');
+    const post = body.closest('.post') as HTMLElement | null;
     const railBlock = '.article-prose > *, .post-title, .post-write-row';
 
     const updateProgress = () => {
@@ -59,9 +59,9 @@ export default function ArticleLayout({
       );
     };
 
-    const dimRail = (event: PointerEvent) => {
+    const dimRail = (event: Event) => {
       if (!post) return;
-      const next = event.relatedTarget;
+      const next = 'relatedTarget' in event ? event.relatedTarget : null;
       if (
         next instanceof Element &&
         post.contains(next) &&
