@@ -7,7 +7,7 @@ import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import { MENU_MORPH, MENU_SURFACE } from '@/lib/motion';
 import { store, useStore } from '@/lib/store';
-import { ArrowLeftIcon, MoonIcon, SunIcon } from '@heroicons/react/24/solid';
+import { MoonIcon, SunIcon } from '@heroicons/react/24/solid';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
@@ -19,35 +19,38 @@ export default function Navbar() {
     select: (state) => state.location.pathname,
   });
   const isPlayground = pathname === '/playground';
-  const isHighlightProject = pathname.startsWith('/highlights/');
+  const back = pathname.startsWith('/highlights/')
+    ? { label: 'Highlights', to: '/highlights' as const }
+    : pathname.startsWith('/writing/')
+      ? { label: 'Writing', to: '/writing' as const }
+      : null;
 
   return (
     <motion.nav
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'fixed z-[70] flex items-center justify-end',
+        'fixed z-[70] flex h-9 items-center',
         isPlayground
-          ? 'top-3.5 right-4 sm:right-6'
-          : 'top-[var(--page-gutter)] right-[var(--page-gutter)]',
+          ? 'top-3.5 right-4 justify-end sm:right-6'
+          : 'inset-x-[var(--page-inset-x)] top-[var(--page-inset-y)] justify-between',
       )}
       initial={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="flex items-center gap-2">
-        {isHighlightProject && (
-          <Link
-            aria-label="Back to highlights"
-            className={cn(
-              'pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full',
-              'text-tertiary border border-black/15 transition-colors dark:border-white/15',
-              'hover:text-primary',
-            )}
-            to="/highlights"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-          </Link>
-        )}
+      {!isPlayground && (
+        <div className="flex h-9 items-center">
+          {back && (
+            <Link className="page-back" to={back.to}>
+              <span aria-hidden="true" className="back-arrow">
+                ↩
+              </span>
+              {back.label}
+            </Link>
+          )}
+        </div>
+      )}
 
+      <div className="flex h-9 items-center gap-2">
         <button
           aria-label="Toggle theme"
           className={cn(
@@ -69,7 +72,7 @@ export default function Navbar() {
           aria-expanded={menuOpen}
           aria-label="Open menu"
           className={cn(
-            'group pointer-events-auto relative inline-flex items-center gap-2 rounded-full px-4 py-2',
+            'group pointer-events-auto relative inline-flex h-9 items-center gap-2 rounded-full px-4',
             'font-menu text-sm font-medium tracking-[-0.02em] lowercase transition-colors',
             'text-neutral-50 dark:text-neutral-950',
             // On hover the pill fills with its own inverse, so the label + dot
@@ -93,7 +96,7 @@ export default function Navbar() {
               // Half the pill's height, not 9999: framer inverse-scales this
               // radius each frame of the morph, and an out-of-range value
               // clamps to an ellipse (the egg). Keep it = height / 2.
-              style={{ borderRadius: 16 }}
+              style={{ borderRadius: 18 }}
               transition={MENU_MORPH}
             >
               <span

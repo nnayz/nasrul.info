@@ -10,7 +10,6 @@ export default function WorkProject({ slug }: { slug: string }) {
   if (!highlight) return null;
   return (
     <ArticleLayout
-      backTo="/highlights"
       editUrl={`https://github.com/nnayz/me/edit/main/content/highlights/${slug}.mdx`}
       key={slug}
       metadata={highlightMeta(highlight) || kindLabels[highlight.kind]}

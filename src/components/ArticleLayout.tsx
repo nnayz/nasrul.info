@@ -1,9 +1,7 @@
 import PageInset from '@components/PageInset';
-import { Link } from '@tanstack/react-router';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 type Props = {
-  backTo: '/writing' | '/highlights';
   children: ReactNode;
   editUrl: string;
   image?: string;
@@ -14,7 +12,6 @@ type Props = {
 type Section = { id: string; level: string; title: string };
 
 export default function ArticleLayout({
-  backTo,
   children,
   editUrl,
   image,
@@ -184,12 +181,6 @@ export default function ArticleLayout({
       <div aria-hidden="true" className="reading-progress">
         <span ref={bar} />
       </div>
-      <Link className="page-back" to={backTo}>
-        <span aria-hidden="true" className="back-arrow">
-          ↩
-        </span>
-        {backTo === '/writing' ? 'Writing' : 'Highlights'}
-      </Link>
       <article className="post">
         <header className="post-head">
           <p className="post-date">{metadata}</p>
