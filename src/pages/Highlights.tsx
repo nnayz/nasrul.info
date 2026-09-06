@@ -5,22 +5,22 @@ import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import { MENU_MORPH } from '@/lib/motion';
 import ExternalLink from '@components/ExternalLink';
+import PageInset from '@components/PageInset';
 import {
+  highlightPeriod,
   kindLabels,
-  works,
-  workPeriod,
-  workSlug,
-  type WorkCardType,
-  type WorkKind,
-} from '@data/work';
+  type Highlight,
+  type HighlightKind,
+} from '@lib/highlights';
 import { Link } from '@tanstack/react-router';
+import { allHighlights } from 'content-collections';
 import { motion, useReducedMotion } from 'framer-motion';
 import { LayoutGrid, List } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 type Sort = 'newest' | 'oldest' | 'az';
 
-const sorters: Record<Sort, (a: WorkCardType, b: WorkCardType) => number> = {
+const sorters: Record<Sort, (a: Highlight, b: Highlight) => number> = {
   az: (a, b) => a.title.localeCompare(b.title),
   // Undated projects sort last either way.
   newest: (a, b) => (b.start ?? '').localeCompare(a.start ?? ''),
@@ -31,9 +31,9 @@ const kindOptions = [
   { label: 'All', value: 'all' },
   ...Object.entries(kindLabels).map(([value, label]) => ({
     label,
-    value: value as WorkKind,
+    value: value as HighlightKind,
   })),
-] satisfies { label: string; value: 'all' | WorkKind }[];
+] satisfies { label: string; value: 'all' | HighlightKind }[];
 
 const sortOptions = [
   { label: 'Newest', value: 'newest' },
@@ -44,26 +44,23 @@ const sortOptions = [
 export default function Highlights() {
   const reduce = useReducedMotion();
   const [view, setView] = useState<'list' | 'grid'>('list');
-  const [kind, setKind] = useState<'all' | WorkKind>('all');
+  const [kind, setKind] = useState<'all' | HighlightKind>('all');
   const [sort, setSort] = useState<Sort>('newest');
 
   const shown = useMemo(
     () =>
-      works
+      (allHighlights as Highlight[])
         .filter((work) => kind === 'all' || work.kind === kind)
         .sort(sorters[sort]),
     [kind, sort],
   );
 
   return (
-    <motion.section
+    <PageInset
       animate={{ opacity: 1, y: 0 }}
-      className={cn(
-        'page-gutter w-full font-sans',
-        view === 'grid' ? 'max-w-6xl' : 'max-w-xl',
-      )}
       initial={{ opacity: 0, y: reduce ? 0 : 12 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      wide={view === 'grid'}
     >
       <header className="mb-8 flex flex-col items-start gap-6">
         <div className="flex max-w-xl flex-col gap-2">
@@ -125,11 +122,11 @@ export default function Highlights() {
         For more projects, view my{' '}
         <ExternalLink href="https://github.com/nnayz">GitHub</ExternalLink>.
       </p>
-    </motion.section>
+    </PageInset>
   );
 }
 
-function Row({ work }: { work: WorkCardType }) {
+function Row({ work }: { work: Highlight }) {
   return (
     <Link
       className={cn(
@@ -137,7 +134,7 @@ function Row({ work }: { work: WorkCardType }) {
         'hover:bg-black/5 dark:hover:bg-white/5',
         'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current',
       )}
-      params={{ slug: workSlug(work.title) }}
+      params={{ slug: work.slug }}
       to="/highlights/$slug"
     >
       <span className="text-secondary group-hover:text-primary min-w-0 truncate text-base transition-colors">
@@ -150,11 +147,11 @@ function Row({ work }: { work: WorkCardType }) {
   );
 }
 
-function Card({ work }: { work: WorkCardType }) {
+function Card({ work }: { work: Highlight }) {
   return (
     <Link
       className="group -m-2 block rounded p-2 transition-colors duration-150 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current dark:hover:bg-white/5"
-      params={{ slug: workSlug(work.title) }}
+      params={{ slug: work.slug }}
       to="/highlights/$slug"
     >
       <div className="aspect-[16/10] overflow-hidden rounded-sm bg-black/[0.03] dark:bg-white/[0.04]">
@@ -226,7 +223,7 @@ function ViewButton({
   );
 }
 
-const meta = (work: WorkCardType) =>
-  [work.company ?? kindLabels[work.kind], workPeriod(work)]
+const meta = (work: Highlight) =>
+  [work.company ?? kindLabels[work.kind], highlightPeriod(work)]
     .filter(Boolean)
     .join(' · ');

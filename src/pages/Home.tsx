@@ -3,6 +3,7 @@ import DateViewer from '@components/DateView';
 import EmailLink from '@components/EmailLink';
 import ExternalLink from '@components/ExternalLink';
 import InternalLink from '@components/InternalLink';
+import PageInset from '@components/PageInset';
 import { Link } from '@tanstack/react-router';
 import { allWritings } from 'content-collections';
 import { motion } from 'framer-motion';
@@ -54,8 +55,8 @@ const fadeInUp = {
 
 export default function Home() {
   return (
-    <motion.div
-      className="page-gutter flex w-full max-w-xl flex-col gap-8"
+    <PageInset
+      className="flex flex-col gap-8"
       variants={stagger}
       initial="initial"
       animate="animate"
@@ -64,7 +65,7 @@ export default function Home() {
       <Contact />
       <AboutMe />
       <RecentWritings />
-    </motion.div>
+    </PageInset>
   );
 }
 

@@ -1,0 +1,17 @@
+---
+title: Federated Nicheformer
+summary: Training a genomics model across many datasets without ever moving the data.
+kind: research
+company: University of Hamburg
+role: Research project
+start: 2025-12
+end: 2026-02
+---
+
+Spatial transcriptomics labs often cannot pool raw single-cell data, yet they still want foundation models fine-tuned on what each site holds. Central training was accurate but not always allowed.
+
+Using Python and PyTorch, I fine-tuned Nicheformer for 24-class cell-type classification on mouse brain spatial data and compared centralized, federated, and purely local training. Clients were split by anatomy (dorsal, mid, ventral) so the federated setting was deliberately non-IID, with one replicate held out for evaluation.
+
+Federated training closed most of the gap to a full central run without sharing samples: centralized reached 94.45% accuracy, federated 92.76%, and local clients averaged far lower. The tradeoff was heavier training logistics and a drop in macro-F1 versus the central baseline.
+
+The [code and write-ups live on GitHub](https://github.com/nnayz/ft-nicheformer) for anyone repeating the comparison.

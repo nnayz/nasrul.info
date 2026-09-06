@@ -1,0 +1,15 @@
+---
+title: MyTorch
+summary: A tiny deep-learning framework built from scratch to see how PyTorch really works.
+kind: personal
+start: 2025-03
+end: 2025-07
+---
+
+I was tired of treating autograd as a black box. Reading about backprop is easy; trusting that you understand it is harder.
+
+MyTorch is a small Python library built only on NumPy, with tensors, reverse-mode differentiation, linear layers, ReLU, cross-entropy, and SGD and Adam written by hand. The API deliberately echoes PyTorch so the mental model transfers.
+
+Staying on dense linear layers kept the scope honest: no conv kernels, no CUDA. The payoff was a full train loop I could step through line by line. On MNIST the framework reached 97.16% test accuracy, which was enough to trust the gradients.
+
+The [MyTorch repository](https://github.com/nnayz/mytorch) stays up as a teaching reference rather than a package meant for production training.

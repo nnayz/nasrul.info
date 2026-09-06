@@ -1,13 +1,10 @@
-import {
-  defineCollection,
-  defineConfig,
-} from '@content-collections/core';
+import { defineCollection, defineConfig } from '@content-collections/core';
 import readingTime from 'reading-time';
 import { z } from 'zod';
 
 const Writing = defineCollection({
   name: 'Writing',
-  directory: 'data/writing',
+  directory: 'content/writing',
   include: '*.mdx',
   schema: z.object({
     image: z.string(),
@@ -19,9 +16,9 @@ const Writing = defineCollection({
   transform: async (doc) => {
     const slug = doc._meta.fileName.replace(/\.mdx$/, '');
     const bodyRaw = doc.content;
-    
+
     const readingTimeResult = readingTime(bodyRaw);
-    
+
     return {
       ...doc,
       slug,
@@ -55,8 +52,39 @@ const Writing = defineCollection({
   },
 });
 
+const Highlight = defineCollection({
+  name: 'Highlight',
+  directory: 'content/highlights',
+  include: '*.mdx',
+  schema: z.object({
+    company: z.string().optional(),
+    end: z.string().optional(),
+    kind: z.enum(['employment', 'freelance', 'personal', 'research']),
+    role: z.string().optional(),
+    start: z.string().optional(),
+    summary: z.string(),
+    title: z.string(),
+    content: z.string(),
+  }),
+  transform: async (doc) => {
+    const bodyRaw = doc.content;
+    const readingTimeResult = readingTime(bodyRaw);
+
+    return {
+      ...doc,
+      slug: doc._meta.fileName.replace(/\.mdx$/, ''),
+      readingTime: {
+        minutes: readingTimeResult.minutes,
+        text: readingTimeResult.text,
+        time: readingTimeResult.time,
+        words: readingTimeResult.words,
+      },
+    };
+  },
+});
+
 const config = defineConfig({
-  content: [Writing],
+  content: [Writing, Highlight],
 });
 
 export default config;

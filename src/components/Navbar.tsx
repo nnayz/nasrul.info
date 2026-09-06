@@ -70,7 +70,7 @@ export default function Navbar() {
           aria-label="Open menu"
           className={cn(
             'group pointer-events-auto relative inline-flex items-center gap-2 rounded-full px-4 py-2',
-            '[font-family:var(--font-body)] text-sm font-bold lowercase transition-colors',
+            'font-menu text-sm font-medium tracking-[-0.02em] lowercase transition-colors',
             'text-neutral-50 dark:text-neutral-950',
             // On hover the pill fills with its own inverse, so the label + dot
             // (bg-current) flip to the original background colour.

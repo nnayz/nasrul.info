@@ -1,3 +1,4 @@
+import PageInset from '@components/PageInset';
 import { resources } from '@data/resources';
 import { motion } from 'framer-motion';
 
@@ -16,9 +17,9 @@ const fadeInUp = {
 
 export default function Resources() {
   return (
-    <motion.div
+    <PageInset
       animate="animate"
-      className="page-gutter flex w-full max-w-xl flex-col gap-8"
+      className="flex flex-col gap-8"
       initial="initial"
       variants={stagger}
     >
@@ -39,7 +40,7 @@ export default function Resources() {
           />
         ))}
       </motion.div>
-    </motion.div>
+    </PageInset>
   );
 }
 

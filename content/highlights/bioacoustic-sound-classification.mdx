@@ -1,0 +1,17 @@
+---
+title: Bioacoustic Sound Classification
+summary: Teaching a model to recognise animal calls from only a handful of examples.
+kind: research
+company: University of Hamburg
+role: Course project
+start: 2025-10
+end: 2026-01
+---
+
+New species and call types show up with almost no labels. Standard classifiers need large sets per class; field work rarely provides that.
+
+For a DCASE-style few-shot setup I trained PyTorch Prototypical Networks on episodic N-way K-shot tasks over animal vocalizations. Torchaudio turned each clip into log-mel and PCEN features once, then training used the saved arrays. I compared several encoders, from a ResNet baseline through attention and transformer variants to a pretrained EfficientNet path, with PyTorch Lightning, Hydra, and MLflow around the runs.
+
+Precomputing features slowed the first pass but made episodic training fast enough to iterate on architecture and distance metrics. The meta-learning framing bought adaptation from a handful of clips at the cost of a more complex data pipeline than a flat classifier.
+
+Training and evaluation commands are packaged in a small CLI in the [public repository](https://github.com/nnayz/prototypical-networks-bioacoustics).

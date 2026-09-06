@@ -2,7 +2,7 @@
 import { EASE_EXPO } from '@/lib/motion';
 import Cal, { getCalApi } from '@calcom/embed-react';
 import EmailLink from '@components/EmailLink';
-import { motion } from 'framer-motion';
+import PageInset from '@components/PageInset';
 import { useTheme } from 'next-themes';
 import { useEffect } from 'react';
 
@@ -36,9 +36,9 @@ export default function Consulting() {
   }, [theme]);
 
   return (
-    <motion.div
+    <PageInset
       animate={{ opacity: 1 }}
-      className="page-gutter relative flex min-h-[100svh] w-full flex-col gap-8"
+      className="relative flex min-h-[100svh] flex-col gap-8"
       initial={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: EASE_EXPO }}
     >
@@ -68,6 +68,6 @@ export default function Consulting() {
           style={{ height: '100%', overflow: 'scroll', width: '100%' }}
         />
       </div>
-    </motion.div>
+    </PageInset>
   );
 }
