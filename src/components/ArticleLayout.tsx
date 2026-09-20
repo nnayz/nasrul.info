@@ -1,3 +1,4 @@
+import ExternalLink from '@components/ExternalLink';
 import PageInset from '@components/PageInset';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
@@ -205,9 +206,7 @@ export default function ArticleLayout({
           </span>
         </div>
         <footer className="post-footer">
-          <a href={editUrl} rel="noopener noreferrer" target="_blank">
-            edit on github
-          </a>
+          <ExternalLink href={editUrl}>edit on github</ExternalLink>
         </footer>
       </article>
       {sections.length > 0 && (

@@ -48,6 +48,8 @@ export const featuredWork: FeaturedWorkItem[] = [
     slug: 'zeus',
   },
   {
+    alt: 'MLdrills editor showing a solved Softmax Function problem',
+    image: '/static/images/work/mldrills.webp',
     result: 'live practice product',
     role: 'product + engineering',
     slug: 'mldrills',

@@ -50,7 +50,7 @@ export default function ExternalLink({ children, href, ...props }: Props) {
   return (
     <a
       {...props}
-      className="group text-secondary relative isolate -mx-2 inline-flex w-fit items-center overflow-hidden rounded bg-black/[0.04] px-2 text-base no-underline before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:rounded before:bg-[#1EFFB8] before:transition-transform before:duration-300 before:ease-[cubic-bezier(0.4,0,0.2,1)] before:content-[''] hover:text-black hover:before:scale-x-100 focus-visible:text-black focus-visible:before:scale-x-100 motion-reduce:before:transition-none dark:bg-white/[0.06]"
+      className="group text-secondary relative isolate -mx-2 inline-flex w-fit items-center overflow-hidden rounded bg-black/[0.04] px-2 text-[1em] leading-[inherit] no-underline before:pointer-events-none before:absolute before:inset-0 before:z-0 before:origin-left before:scale-x-0 before:rounded before:bg-[#1EFFB8] before:transition-transform before:duration-300 before:ease-[cubic-bezier(0.4,0,0.2,1)] before:content-[''] hover:text-black hover:before:scale-x-100 focus-visible:text-black focus-visible:before:scale-x-100 motion-reduce:before:transition-none dark:bg-white/[0.06]"
       data-link-kind="external"
       href={href}
       rel="noopener noreferrer"

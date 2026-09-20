@@ -382,7 +382,7 @@ SOFTWARE.
 }
 
 /* Notion-style pill links */
-.article-prose a {
+.article-prose a:not([data-link-kind='external']) {
   color: var(--notion-ink, #18181b);
   text-decoration: none;
   background: var(--notion-tint, rgba(24, 24, 27, 0.05));
@@ -397,13 +397,13 @@ SOFTWARE.
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .article-prose a:hover {
+  .article-prose a:not([data-link-kind='external']):hover {
     background: var(--notion-tint-hover, rgba(24, 24, 27, 0.09));
     transform: translateY(-1px);
   }
 }
 
-.article-prose a:active {
+.article-prose a:not([data-link-kind='external']):active {
   transform: translateY(0);
   transition-duration: var(--dur-quick, 80ms);
 }
@@ -1081,7 +1081,7 @@ SOFTWARE.
 .article-prose code::after {
   content: none;
 }
-.article-prose a[data-external]::after {
+.article-prose a[data-external]:not([data-link-kind='external'])::after {
   content: '';
   display: inline-block;
   width: 0.62em;
@@ -1095,7 +1095,7 @@ SOFTWARE.
     opacity 160ms ease,
     transform 160ms ease;
 }
-.article-prose a[data-external]:hover::after {
+.article-prose a[data-external]:not([data-link-kind='external']):hover::after {
   opacity: 0.85;
   transform: translate(0.5px, -0.5px);
 }
@@ -1187,7 +1187,39 @@ SOFTWARE.
 }
 
 .work-page .featured-card {
+  position: relative;
   min-width: 0;
+  border-radius: 10px;
+  padding: 12px;
+  margin: -12px;
+  transition: background 160ms ease;
+}
+
+.work-page .featured-card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.work-page .featured-card-hit:focus-visible {
+  outline: 2px solid var(--notion-ink);
+  outline-offset: 3px;
+}
+
+.work-page .featured-media {
+  position: relative;
+  z-index: 0;
+}
+
+.work-page .featured-copy {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.work-page .featured-copy a {
+  pointer-events: auto;
 }
 
 .work-page .featured-card--lead {
@@ -1237,21 +1269,6 @@ SOFTWARE.
   outline-offset: 3px;
 }
 
-.work-page .featured-media--safari {
-  aspect-ratio: auto;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.work-page .featured-media--safari svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 .work-page .featured-media img {
   display: block;
   width: 100%;
@@ -1278,9 +1295,6 @@ SOFTWARE.
 }
 
 .work-page .featured-copy h3 {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.35em;
   margin: 0;
   color: var(--notion-ink);
   font-size: 18px;
@@ -1295,9 +1309,12 @@ SOFTWARE.
 }
 
 .work-page .featured-copy h3 a {
-  color: inherit;
   text-decoration: none;
   border-radius: 3px;
+}
+
+.work-page .featured-copy h3 a:not([data-link-kind='external']) {
+  color: inherit;
 }
 
 .work-page .featured-summary {
@@ -1636,7 +1653,15 @@ SOFTWARE.
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .work-page .featured-media:hover img {
+  .work-page .featured-card:hover {
+    background: rgba(24, 24, 27, 0.025);
+  }
+
+  .dark .work-page .featured-card:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .work-page .featured-card:hover .featured-image {
     transform: scale(1.012);
   }
 
@@ -1728,7 +1753,7 @@ SOFTWARE.
     transition: none;
   }
 
-  .work-page .featured-media:hover img {
+  .work-page .featured-card:hover .featured-image {
     transform: none;
   }
 

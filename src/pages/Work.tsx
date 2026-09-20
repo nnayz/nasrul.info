@@ -1,9 +1,8 @@
 /** Work index: featured projects, then a year-grouped archive. */
 import WorkThumbnail from '@/components/WorkThumbnail';
-import { Safari } from '@/components/ui/safari';
 import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
-import { ExternalChevron } from '@components/ExternalLink';
+import ExternalLink from '@components/ExternalLink';
 import PageInset from '@components/PageInset';
 import {
   featuredWork,
@@ -70,18 +69,17 @@ export default function Work() {
             >
               <Link
                 aria-label={`Read about ${project.title}`}
-                className={cn(
-                  'featured-media',
-                  project.image && 'featured-media--safari',
-                )}
+                className="featured-card-hit"
                 params={{ slug: project.slug }}
                 to="/highlights/$slug"
-              >
+              />
+              <div className="featured-media">
                 {project.image ? (
-                  <Safari
-                    className="featured-image h-auto w-full"
-                    imageSrc={project.image}
-                    url={displayHost(project.href)}
+                  <img
+                    alt={project.alt ?? ''}
+                    className="featured-image"
+                    decoding="async"
+                    src={project.image}
                   />
                 ) : (
                   <WorkThumbnail
@@ -90,16 +88,17 @@ export default function Work() {
                     title={project.title}
                   />
                 )}
-              </Link>
+              </div>
 
               <div className="featured-copy">
                 <p className="featured-context">{project.context}</p>
                 <h3>
-                  <Link params={{ slug: project.slug }} to="/highlights/$slug">
-                    {project.title}
-                  </Link>
-                  {project.href && (
-                    <ProductLink href={project.href} title={project.title} />
+                  {project.href ? (
+                    <ExternalLink href={project.href}>
+                      {project.title}
+                    </ExternalLink>
+                  ) : (
+                    project.title
                   )}
                 </h3>
                 <p className="featured-summary">{project.summary}</p>
@@ -157,6 +156,19 @@ export default function Work() {
             work={archive.earlierProjects[0]}
           />
         )}
+
+        <div className="node">
+          <div className="row">
+            <span className="bullet-cell">
+              <span className="bullet" />
+            </span>
+            <span className="label work-line">
+              <ExternalLink href="https://github.com/nnayz">
+                more projects on github
+              </ExternalLink>
+            </span>
+          </div>
+        </div>
       </section>
 
       <div aria-hidden className="write-row">
@@ -233,7 +245,9 @@ function ArchiveRow({ extra, work }: { extra?: string; work: Highlight }) {
           <span className="bullet" />
         </span>
         <span className="label work-line">
-          <span className="work-name">
+          {href ? (
+            <ExternalLink href={href}>{title}</ExternalLink>
+          ) : (
             <Link
               className="mention"
               params={{ slug: work.slug }}
@@ -241,8 +255,7 @@ function ArchiveRow({ extra, work }: { extra?: string; work: Highlight }) {
             >
               {title}
             </Link>
-            {href && <ProductLink href={href} title={work.title} />}
-          </span>
+          )}
           {description && (
             <span className="work-desc">{description.toLowerCase()}</span>
           )}
@@ -253,32 +266,6 @@ function ArchiveRow({ extra, work }: { extra?: string; work: Highlight }) {
         </span>
       </div>
     </div>
-  );
-}
-
-function displayHost(href?: string): string | undefined {
-  if (!href) return undefined;
-  try {
-    const url = new URL(href);
-    const path = url.pathname === '/' ? '' : url.pathname.replace(/\/$/, '');
-    return url.hostname.replace(/^www\./, '') + path;
-  } catch {
-    return href;
-  }
-}
-
-function ProductLink({ href, title }: { href: string; title: string }) {
-  return (
-    <a
-      aria-label={`Open ${title}`}
-      className="external-chevron"
-      href={href}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <ExternalChevron />
-      <span className="sr-only"> (opens in a new tab)</span>
-    </a>
   );
 }
 

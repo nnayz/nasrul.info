@@ -1,4 +1,4 @@
-import { isExternalHttpHref } from './ExternalLink';
+import ExternalLink, { isExternalHttpHref } from './ExternalLink';
 import Flashcard from './Flashcard';
 import { Link, type LinkProps } from '@tanstack/react-router';
 import type { ComponentPropsWithoutRef } from 'react';
@@ -16,17 +16,7 @@ function ContentLink({
     );
   }
   if (isExternalHttpHref(href)) {
-    return (
-      <a
-        {...props}
-        data-external=""
-        href={href}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        {children}
-      </a>
-    );
+    return <ExternalLink href={href}>{children}</ExternalLink>;
   }
   return (
     <a {...props} href={href}>
