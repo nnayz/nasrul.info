@@ -1,3 +1,4 @@
+import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import DateViewer from '@components/DateView';
 import EmailLink from '@components/EmailLink';
@@ -7,6 +8,7 @@ import PageInset from '@components/PageInset';
 import { Link } from '@tanstack/react-router';
 import { allWritings } from 'content-collections';
 import { motion } from 'framer-motion';
+import { useEffect, useState, type ReactNode } from 'react';
 
 type Post = {
   slug: string;
@@ -86,29 +88,32 @@ function AboutMe() {
       <p className="text-tertiary text-xs font-medium tracking-wider uppercase">
         About me
       </p>
-      <div className="text-secondary flex flex-col gap-3 text-base">
-        <p>
-          I enjoy building software that feels natural and dependable, where
-          thoughtful engineering meets clean, purposeful design. I like
-          exploring new tools, experimenting with prototypes, and understanding
-          how AI and data can shape more intuitive digital experiences.
-        </p>
-        <p>
-          I study Data Science and AI at the{' '}
-          <ExternalLink href="https://www.uni-hamburg.de">
-            University of Hamburg
-          </ExternalLink>{' '}
-          and keep learning by reading, making, and exploring new ideas.
-        </p>
-        <p>
-          Check out my <InternalLink to="/work">work</InternalLink> if you want
-          to learn more about me.
-        </p>
-        <p>
-          I also take on{' '}
-          <InternalLink to="/consulting">consulting work</InternalLink>. If you
-          have an AI or data problem, book a call and let&rsquo;s talk.
-        </p>
+      <p className="text-secondary text-base">
+        I enjoy building software that feels natural and dependable, where
+        thoughtful engineering meets clean, purposeful design. I like exploring
+        new tools, experimenting with prototypes, and understanding how AI and
+        data can shape more intuitive digital experiences.
+      </p>
+      <div className="outliner pointer-events-auto">
+        <OutlinerParent count={2} defaultOpen label={<NowLabel />}>
+          <OutlinerLeaf>
+            studying data science and AI at{' '}
+            <Mention external href="https://www.uni-hamburg.de">
+              University of Hamburg
+            </Mention>
+          </OutlinerLeaf>
+          <OutlinerLeaf>reading, making, and exploring new ideas</OutlinerLeaf>
+        </OutlinerParent>
+        <OutlinerLeaf>
+          check out my <Mention to="/work">work</Mention> if you want to learn
+          more about me
+        </OutlinerLeaf>
+        <OutlinerParent count={1} defaultOpen label="consulting">
+          <OutlinerLeaf>
+            if you have an AI or data problem,{' '}
+            <Mention to="/consulting">book a call</Mention> and let&rsquo;s talk
+          </OutlinerLeaf>
+        </OutlinerParent>
       </div>
     </motion.div>
   );
@@ -153,8 +158,8 @@ function ContactLink({
 
 function Contact() {
   return (
-    <motion.div variants={fadeInUp} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 gap-x-6 gap-y-4 min-[380px]:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] sm:grid-cols-[minmax(12rem,1.5fr)_minmax(6rem,1fr)_minmax(6rem,1fr)]">
+    <motion.div variants={fadeInUp} className="flex flex-col gap-3 text-base">
+      <div className="grid w-max max-w-full grid-cols-1 gap-x-8 gap-y-4 min-[380px]:grid-cols-2 sm:grid-cols-3">
         <ContactLink
           href="https://www.linkedin.com/in/nasrul-hudaa/"
           title="Nasrul Huda"
@@ -225,4 +230,120 @@ function RecentWritings() {
   } catch {
     return null;
   }
+}
+
+function NowLabel() {
+  const [stamp, setStamp] = useState('');
+
+  useEffect(() => {
+    const now = new Date();
+    const days = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    const day = days[now.getDay()];
+    const month = now.toLocaleString('en-US', { month: 'short' }).toLowerCase();
+    setStamp(`${day} · ${now.getDate()} ${month}`);
+  }, []);
+
+  return (
+    <>
+      now
+      {stamp ? <span className="meta">{stamp}</span> : null}
+    </>
+  );
+}
+
+function Caret() {
+  return (
+    <span aria-hidden className="caret">
+      <svg fill="none" viewBox="0 0 8 8">
+        <path
+          d="M2 1l4 3-4 3"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.4"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function OutlinerLeaf({ children }: { children: ReactNode }) {
+  return (
+    <div className="node">
+      <div className="row">
+        <span className="bullet-cell">
+          <span className="bullet" />
+        </span>
+        <span className="label">{children}</span>
+      </div>
+    </div>
+  );
+}
+
+function OutlinerParent({
+  children,
+  count,
+  defaultOpen = true,
+  label,
+}: {
+  children: ReactNode;
+  count?: number;
+  defaultOpen?: boolean;
+  label: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className={cn('node has-children', open && 'open')}>
+      <button
+        aria-expanded={open}
+        className="row has-children"
+        onClick={() => {
+          play('click');
+          setOpen((value) => !value);
+        }}
+        type="button"
+      >
+        <span className="bullet-cell">
+          <span className="bullet" />
+          <Caret />
+        </span>
+        <span className="label">
+          {label}
+          {count != null ? <span className="count">{count}</span> : null}
+        </span>
+      </button>
+      <div className="children">{children}</div>
+    </div>
+  );
+}
+
+function Mention({
+  children,
+  external = false,
+  href,
+  to,
+}: {
+  children: ReactNode;
+  external?: boolean;
+  href?: string;
+  to?: '/consulting' | '/work';
+}) {
+  if (to) {
+    return <InternalLink to={to}>{children}</InternalLink>;
+  }
+
+  if (!href || !external) {
+    throw new Error('Mention requires an internal `to` or an external `href`');
+  }
+
+  return <ExternalLink href={href}>{children}</ExternalLink>;
 }

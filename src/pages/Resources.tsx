@@ -16,6 +16,14 @@ const fadeInUp = {
   initial: { opacity: 0, y: 12 },
 };
 
+function faviconSrc(href: string) {
+  try {
+    return `https://www.google.com/s2/favicons?domain=${new URL(href).hostname}&sz=32`;
+  } catch {
+    return '';
+  }
+}
+
 export default function Resources() {
   return (
     <PageInset
@@ -31,7 +39,7 @@ export default function Resources() {
           my thinking.
         </p>
       </motion.header>
-      <motion.div className="space-y-0.5" variants={fadeInUp}>
+      <motion.div className="resources-page outliner" variants={fadeInUp}>
         {resources.map((resource) => (
           <Item
             description={resource.description}
@@ -54,20 +62,24 @@ function Item({
   link: string;
   title: string;
 }) {
-  const faviconUrl = `https://www.google.com/s2/favicons?domain=${link}&sz=${64}`;
+  const faviconUrl = faviconSrc(link);
 
   return (
-    <div className="-mx-2 flex items-center gap-3 rounded px-2 py-2">
-      <div className="h-8 w-8 shrink-0">
-        <img
-          alt=""
-          className="h-full w-full rounded-md bg-gray-500/20 object-contain px-0.5 py-0.5"
-          src={faviconUrl}
-        />
-      </div>
-      <div className="flex min-w-0 grow flex-col gap-0.5">
-        <ExternalLink href={link}>{title}</ExternalLink>
-        <span className="text-tertiary truncate text-sm">{description}</span>
+    <div className="node">
+      <div className="row">
+        <span className="bullet-cell">
+          {faviconUrl ? (
+            <img alt="" className="resource-favicon" src={faviconUrl} />
+          ) : (
+            <span className="bullet" />
+          )}
+        </span>
+        <span className="label work-line">
+          <ExternalLink href={link}>{title}</ExternalLink>
+          {description ? (
+            <span className="work-desc">{description}</span>
+          ) : null}
+        </span>
       </div>
     </div>
   );

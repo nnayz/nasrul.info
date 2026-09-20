@@ -8,7 +8,7 @@ export const resources: Resource[] = [
   {
     title: "Uber Engineering",
     description: "real systems, scaling, infra + AI",
-    link: "real systems, scaling, infra + AI"
+    link: "https://www.uber.com/blog/engineering/"
   },
   {
     title: "Understanding Git Worktrees",

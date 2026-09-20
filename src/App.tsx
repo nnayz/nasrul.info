@@ -1,7 +1,8 @@
 import { cn } from '@/lib/className';
 import AudioToggle from '@components/AudioToggle';
 import Background from '@components/Background';
-import CursorTrail from '@components/CursorTrail';
+import CustomCursor from '@components/CustomCursor';
+import GridNotes from '@components/GridNotes';
 import MenuOverlay from '@components/MenuOverlay';
 import Navbar from '@components/Navbar';
 import { useRouterState } from '@tanstack/react-router';
@@ -32,7 +33,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : (
         <Background showGrid={isHome} />
       )}
-      {isHome && <CursorTrail />}
+      <CustomCursor />
+      {isHome && <GridNotes />}
       <div aria-hidden className="nav-fade" />
       <div aria-hidden className="page-frame-fade-bottom" />
       <Navbar />

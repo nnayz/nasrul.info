@@ -3,6 +3,7 @@ import WorkThumbnail from '@/components/WorkThumbnail';
 import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import ExternalLink from '@components/ExternalLink';
+import InternalLink from '@components/InternalLink';
 import PageInset from '@components/PageInset';
 import {
   featuredWork,
@@ -37,7 +38,7 @@ export default function Work() {
   return (
     <PageInset
       animate={{ opacity: 1, y: 0 }}
-      className="work-page max-w-[940px]"
+      className="work-page outliner max-w-[940px]"
       initial={{ opacity: 0, y: reduce ? 0 : 12 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       wide
@@ -248,13 +249,9 @@ function ArchiveRow({ extra, work }: { extra?: string; work: Highlight }) {
           {href ? (
             <ExternalLink href={href}>{title}</ExternalLink>
           ) : (
-            <Link
-              className="mention"
-              params={{ slug: work.slug }}
-              to="/highlights/$slug"
-            >
+            <InternalLink params={{ slug: work.slug }} to="/highlights/$slug">
               {title}
-            </Link>
+            </InternalLink>
           )}
           {description && (
             <span className="work-desc">{description.toLowerCase()}</span>

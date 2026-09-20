@@ -1,7 +1,7 @@
 /**
- * A cursor-driven highlight for the background grid. Nearby cell interiors
- * fill with white while clicks place pitched green notes. Vertical position is
- * pitch, and old notes slowly fade out of the composition.
+ * Click or tap empty grid cells to drop pitched notes. Vertical position is
+ * pitch; notes fade out over time. No cursor tracking — the custom cursor
+ * handles pointer follow.
  */
 import { initAudio, playGridNote } from '@/lib/audio';
 import { store } from '@/lib/store';
@@ -11,7 +11,6 @@ import { useEffect, useRef, useState } from 'react';
 
 type Position = { x: number; y: number };
 type GridCell = { column: number; row: number };
-type TrailPoint = Position & { createdAt: number };
 type LockedNote = Position & {
   column: number;
   createdAt: number;
@@ -21,13 +20,7 @@ type LockedNote = Position & {
 };
 
 const GRID_SIZE = 24;
-const FOLLOW_SPEED = 26;
 const GLOW_RADIUS = 28;
-const TRAIL_RADIUS = 14;
-const TRAIL_DURATION = 180;
-const TRAIL_SPACING = 5;
-const MAX_TRAIL_POINTS = 12;
-const SOUND_INTERVAL = 120;
 const LOCK_DURATION = 18000;
 const LOCK_HOLD = 1800;
 const LOCK_PULSE_DURATION = 460;
@@ -35,12 +28,9 @@ const LOCK_COLOR = '30,255,184';
 const HINT_DELAY = 550;
 const INTERACTIVE_SELECTOR =
   'a, button, input, textarea, select, summary, [role="button"], [class*="cursor-pointer"]';
-
-// Rows form a C-major piano roll. The bottom row starts at C2 and rises through
-// the scale, keeping random clicks harmonic while retaining melodic direction.
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
 
-export default function CursorTrail() {
+export default function GridNotes() {
   const ref = useRef<HTMLCanvasElement>(null);
   const [hint, setHint] = useState<Position | null>(null);
 
@@ -48,30 +38,19 @@ export default function CursorTrail() {
     const canvas = ref.current;
     if (!canvas) return;
 
-    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const reduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches;
-    if (coarse || reduced) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let target: Position = { x: 0, y: 0 };
-    let glow: Position = { x: 0, y: 0 };
-    let lastTrailPosition: Position = { x: 0, y: 0 };
-    let trail: TrailPoint[] = [];
     let locks: LockedNote[] = [];
     let hasLocked = false;
-    let initialized = false;
-    let pointerInside = false;
-    let pointerLeftAt = 0;
-    let previousFrame = performance.now();
-    let previousSoundCell = '';
-    let previousSoundAt = 0;
     let hoveredHintCell = '';
     let hintTimer: number | null = null;
     let hintDismissed = false;
@@ -103,30 +82,7 @@ export default function CursorTrail() {
 
     const requestDraw = () => {
       if (!raf && document.visibilityState === 'visible') {
-        previousFrame = performance.now();
         raf = requestAnimationFrame(draw);
-      }
-    };
-
-    const addTrailPoints = (now: number) => {
-      const dx = glow.x - lastTrailPosition.x;
-      const dy = glow.y - lastTrailPosition.y;
-      const distance = Math.hypot(dx, dy);
-      if (distance < TRAIL_SPACING) return;
-
-      const steps = Math.min(Math.floor(distance / TRAIL_SPACING), 4);
-      for (let index = 1; index <= steps; index += 1) {
-        const progress = index / steps;
-        trail.push({
-          createdAt: now - (steps - index) * 4,
-          x: lastTrailPosition.x + dx * progress,
-          y: lastTrailPosition.y + dy * progress,
-        });
-      }
-
-      lastTrailPosition = { ...glow };
-      if (trail.length > MAX_TRAIL_POINTS) {
-        trail = trail.slice(-MAX_TRAIL_POINTS);
       }
     };
 
@@ -176,7 +132,14 @@ export default function CursorTrail() {
 
     const panForX = (x: number) => (x / Math.max(width, 1)) * 1.5 - 0.75;
 
+    const cellFromEvent = (event: PointerEvent): GridCell => ({
+      column: Math.floor(event.clientX / GRID_SIZE),
+      row: Math.floor(event.clientY / GRID_SIZE),
+    });
+
     const scheduleHint = (event: PointerEvent) => {
+      if (!finePointer) return;
+
       const appState = store.get();
       const targetElement =
         event.target instanceof Element ? event.target : null;
@@ -190,8 +153,7 @@ export default function CursorTrail() {
         return;
       }
 
-      const column = Math.floor(event.clientX / GRID_SIZE);
-      const row = Math.floor(event.clientY / GRID_SIZE);
+      const { column, row } = cellFromEvent(event);
       const cell = `${column}:${row}`;
       if (cell === hoveredHintCell) return;
 
@@ -199,48 +161,17 @@ export default function CursorTrail() {
       hoveredHintCell = cell;
       hintTimer = window.setTimeout(() => {
         hintTimer = null;
-        const cellRight = (column + 1) * GRID_SIZE;
-        const cellBottom = (row + 1) * GRID_SIZE;
         setHint({
-          x: Math.min(cellRight + 8, width - 56),
-          y: Math.min(cellBottom + 8, height - 32),
+          x: Math.min((column + 1) * GRID_SIZE + 8, width - 56),
+          y: Math.min((row + 1) * GRID_SIZE + 8, height - 32),
         });
       }, HINT_DELAY);
     };
 
-    const playCellSound = (now: number) => {
-      const column = Math.floor(glow.x / GRID_SIZE);
-      const row = Math.floor(glow.y / GRID_SIZE);
-      const cell = `${column}:${row}`;
-      if (cell === previousSoundCell) return;
-
-      previousSoundCell = cell;
-      if (hasLocked || !pointerInside || now - previousSoundAt < SOUND_INTERVAL)
-        return;
-
-      previousSoundAt = now;
-    };
-
     const draw = (now: number) => {
       raf = 0;
-      const delta = Math.min((now - previousFrame) / 1000, 0.05);
-      previousFrame = now;
-
-      if (initialized) {
-        const follow = 1 - Math.exp(-FOLLOW_SPEED * delta);
-        glow.x += (target.x - glow.x) * follow;
-        glow.y += (target.y - glow.y) * follow;
-        addTrailPoints(now);
-        playCellSound(now);
-      }
-
-      trail = trail.filter((point) => now - point.createdAt < TRAIL_DURATION);
       locks = locks.filter((lock) => now - lock.createdAt < LOCK_DURATION);
       ctx.clearRect(0, 0, width, height);
-
-      const dark = document.documentElement.classList.contains('dark');
-      const trailOpacity = dark ? 0.028 : 0.045;
-      const glowOpacity = dark ? 0.78 : 1;
 
       for (const lock of locks) {
         const age = now - lock.createdAt;
@@ -250,40 +181,18 @@ export default function CursorTrail() {
         );
         const pulseAge = now - lock.lastPlayedAt;
         const pulse =
-          pulseAge >= 0 && pulseAge < LOCK_PULSE_DURATION
+          !reduced && pulseAge >= 0 && pulseAge < LOCK_PULSE_DURATION
             ? Math.pow(1 - pulseAge / LOCK_PULSE_DURATION, 2) * 0.3
             : 0;
         const opacity = 0.72 * Math.pow(1 - fadeProgress, 1.2) + pulse;
         drawCellGlow(lock.x, lock.y, GLOW_RADIUS, opacity, LOCK_COLOR);
       }
 
-      for (const point of trail) {
-        const life = 1 - (now - point.createdAt) / TRAIL_DURATION;
-        drawCellGlow(
-          point.x,
-          point.y,
-          TRAIL_RADIUS,
-          trailOpacity * life * life,
-        );
-      }
-
-      const leaveProgress = pointerInside
-        ? 0
-        : Math.min((now - pointerLeftAt) / TRAIL_DURATION, 1);
-      const headOpacity = initialized ? 1 - leaveProgress : 0;
-      drawCellGlow(glow.x, glow.y, GLOW_RADIUS, glowOpacity * headOpacity);
-
-      const distanceToTarget = Math.hypot(target.x - glow.x, target.y - glow.y);
-      const isMoving = initialized && distanceToTarget > 0.1;
-      const isFading = !pointerInside && headOpacity > 0;
-      if (isMoving || trail.length > 0 || locks.length > 0 || isFading)
-        requestDraw();
+      if (locks.length > 0) requestDraw();
     };
 
     const isGridTarget = (event: PointerEvent) => {
-      const appState = store.get();
-      if (appState.menuOpen) return false;
-
+      if (store.get().menuOpen) return false;
       const targetElement =
         event.target instanceof Element ? event.target : null;
       return !targetElement?.closest(INTERACTIVE_SELECTOR);
@@ -360,76 +269,34 @@ export default function CursorTrail() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      if (
-        event.pointerType === 'touch' ||
-        event.button !== 0 ||
-        !isGridTarget(event)
-      )
-        return;
+      if (event.button !== 0 || !isGridTarget(event)) return;
 
-      dragging = true;
+      dragging = event.pointerType !== 'touch';
       lastDragCell = null;
       hideHint();
       retireHint();
       initAudio();
-      paintTo(
-        {
-          column: Math.floor(event.clientX / GRID_SIZE),
-          row: Math.floor(event.clientY / GRID_SIZE),
-        },
-        1,
-      );
+      paintTo(cellFromEvent(event), 1);
     };
 
     const onMove = (event: PointerEvent) => {
       if (event.pointerType === 'touch') return;
 
-      target = { x: event.clientX, y: event.clientY };
-      pointerInside = true;
-
       if (dragging && (event.buttons & 1) === 1) {
-        if (isGridTarget(event)) {
-          paintTo(
-            {
-              column: Math.floor(event.clientX / GRID_SIZE),
-              row: Math.floor(event.clientY / GRID_SIZE),
-            },
-            0.72,
-          );
-        } else {
-          lastDragCell = null;
-        }
+        if (isGridTarget(event)) paintTo(cellFromEvent(event), 0.72);
+        else lastDragCell = null;
         hideHint();
-      } else {
-        dragging = false;
-        lastDragCell = null;
-        scheduleHint(event);
+        return;
       }
 
-      if (!initialized) {
-        glow = { ...target };
-        lastTrailPosition = { ...target };
-        previousSoundCell = `${Math.floor(target.x / GRID_SIZE)}:${Math.floor(
-          target.y / GRID_SIZE,
-        )}`;
-        initialized = true;
-      }
-
-      requestDraw();
+      dragging = false;
+      lastDragCell = null;
+      scheduleHint(event);
     };
 
     const endDrag = () => {
       dragging = false;
       lastDragCell = null;
-    };
-
-    const onPointerOut = (event: PointerEvent) => {
-      if (event.relatedTarget) return;
-      pointerInside = false;
-      pointerLeftAt = performance.now();
-      endDrag();
-      hideHint();
-      requestDraw();
     };
 
     const onVisibilityChange = () => {
@@ -450,7 +317,6 @@ export default function CursorTrail() {
     resize();
     window.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerout', onPointerOut);
     window.addEventListener('pointerup', endDrag);
     window.addEventListener('pointercancel', endDrag);
     window.addEventListener('blur', endDrag);
@@ -460,7 +326,6 @@ export default function CursorTrail() {
     return () => {
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerout', onPointerOut);
       window.removeEventListener('pointerup', endDrag);
       window.removeEventListener('pointercancel', endDrag);
       window.removeEventListener('blur', endDrag);

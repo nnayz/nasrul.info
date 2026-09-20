@@ -7,6 +7,7 @@ import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import { MENU_MORPH, MENU_SURFACE } from '@/lib/motion';
 import { store, useStore } from '@/lib/store';
+import { revealThemeFrom } from '@/lib/themeTransition';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
@@ -54,9 +55,13 @@ export default function Navbar() {
             'bg-neutral-950 text-neutral-50 transition-transform duration-300 ease-out hover:scale-110',
             'dark:bg-neutral-50 dark:text-neutral-950',
           )}
-          onClick={() => {
+          onClick={(event) => {
             play('click');
-            setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+            revealThemeFrom(
+              event.currentTarget,
+              resolvedTheme === 'dark' ? 'light' : 'dark',
+              setTheme,
+            );
           }}
           type="button"
         >

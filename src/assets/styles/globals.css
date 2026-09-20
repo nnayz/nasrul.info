@@ -58,7 +58,7 @@
   }
 
   body {
-    @apply m-0 bg-paper p-0;
+    @apply bg-paper m-0 p-0;
     font-family: var(--font-sans);
   }
 
@@ -376,6 +376,93 @@
 .dark .nav-fade,
 .dark .page-frame-fade-bottom {
   --nav-fade-bg: var(--notion-bg, var(--color-neutral-950));
+}
+
+/* Mike Matas-style custom cursor (fine-pointer devices only).
+   Difference + white stays visible on both page surfaces and inverted
+   chrome (menu, theme toggle, audio). Multiply/screen vanished there. */
+.site-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate3d(-100px, -100px, 0);
+  will-change: transform, width, height, opacity, background;
+  transition:
+    width var(--dur-normal, 220ms) var(--ease-out-soft, ease),
+    height var(--dur-normal, 220ms) var(--ease-out-soft, ease),
+    margin var(--dur-normal, 220ms) var(--ease-out-soft, ease),
+    background var(--dur-quick, 140ms) ease,
+    opacity var(--dur-normal, 220ms) ease;
+  mix-blend-mode: difference;
+}
+
+@media (pointer: fine) and (hover: hover) {
+  .site-cursor.visible {
+    opacity: 0.85;
+  }
+  html.has-site-cursor,
+  html.has-site-cursor body,
+  html.has-site-cursor *,
+  html.has-site-cursor *::before,
+  html.has-site-cursor *::after {
+    cursor: none !important;
+  }
+  html.has-site-cursor input:not([type='button']):not([type='submit']),
+  html.has-site-cursor textarea,
+  html.has-site-cursor [contenteditable='true'] {
+    cursor: text !important;
+  }
+}
+
+.site-cursor.grow {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  background: #fff;
+}
+.site-cursor.press {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+}
+.site-cursor.text {
+  width: 2px;
+  height: 18px;
+  margin: -9px 0 0 -1px;
+  border-radius: 1px;
+  background: #fff;
+}
+
+@media (pointer: coarse), (hover: none) {
+  .site-cursor {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-cursor {
+    transition: opacity var(--dur-normal, 220ms) ease;
+  }
+}
+
+/* Theme toggle: new theme expands from the button over the old snapshot. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
 }
 
 @supports (-webkit-mask-image: linear-gradient(to bottom, #000, transparent)) {
