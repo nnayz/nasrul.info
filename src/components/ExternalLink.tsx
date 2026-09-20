@@ -39,17 +39,17 @@ export default function ExternalLink({ children, href, ...props }: Props) {
       <span className="relative z-10">{children}</span>
       <svg
         aria-hidden="true"
-        className="relative z-10 ml-[0.6em] size-[0.55em] -translate-x-1 opacity-40 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 motion-reduce:transition-none"
+        className="relative z-10 ml-[0.35em] size-[0.62em] opacity-50 transition-all duration-160 group-hover:opacity-[0.85] group-focus-visible:opacity-[0.85] motion-reduce:transition-none"
         fill="none"
         viewBox="0 0 10 10"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M1.004 9.166 9.337.833m0 0v8.333m0-8.333H1.004"
+          d="M3.2 7L7 3.2M7 3.2H3.9M7 3.2V6.3"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.25"
+          strokeWidth="1.8"
         />
       </svg>
       <span className="sr-only"> (opens in a new tab)</span>

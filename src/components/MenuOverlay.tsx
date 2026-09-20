@@ -23,7 +23,6 @@ const pages = [
   { label: 'consulting', to: '/consulting' },
   { label: 'writing', to: '/writing' },
   { label: 'resources', to: '/resources' },
-  { label: 'playground', to: '/playground' },
 ] as const;
 
 const EMAIL = 'nasrul.huda.ds@gmail.com';
@@ -83,7 +82,7 @@ export default function MenuOverlay() {
         {open && (
           <motion.nav
             aria-label="Primary"
-            className="pointer-events-auto fixed inset-y-2 right-2 z-[80] flex w-[calc(100%-1rem)] flex-col overflow-hidden bg-neutral-50 p-8 text-neutral-950 shadow-2xl ring-1 ring-black/5 sm:inset-y-3 sm:right-3 sm:w-[min(36rem,calc(100%-1.5rem))] sm:p-10"
+            className="pointer-events-auto fixed top-[var(--page-inset-y)] right-[var(--page-inset-x)] bottom-[var(--page-inset-y)] z-[80] flex w-[min(24rem,calc(100%_-_2*var(--page-inset-x)))] min-h-0 flex-col overflow-hidden bg-neutral-950 p-6 text-neutral-50 shadow-2xl ring-1 ring-white/10 sm:p-8 dark:bg-neutral-50 dark:text-neutral-950 dark:ring-black/5"
             exit={{
               opacity: 0,
               transition: { duration: 0.4, ease: EASE_INOUT },
@@ -92,34 +91,32 @@ export default function MenuOverlay() {
             style={{ borderRadius: 24 }}
             transition={MENU_MORPH}
           >
-            {/* The pill is dark in light mode; hold its colour for a beat so the
-                surface doesn't flip white the instant it starts growing. */}
-            <motion.span
-              animate={{ opacity: 0 }}
-              className="pointer-events-none absolute inset-0 bg-neutral-950 dark:hidden"
-              initial={{ opacity: 1 }}
-              transition={{ duration: 0.4, ease: EASE_INOUT }}
-            />
-
             <motion.div
               animate={{ opacity: 1 }}
-              className="relative flex justify-end"
+              className="relative flex items-center justify-end gap-2"
               initial={{ opacity: 0 }}
               transition={{ delay: 0.35, duration: 0.4 }}
             >
+              <Link
+                aria-label="Playground"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1EFFB8] text-black transition-transform duration-300 ease-out hover:scale-110"
+                onClick={() => play('click')}
+                to="/playground"
+              >
+                <Music2 className="h-4 w-4" strokeWidth={2.25} />
+              </Link>
               <button
-                className="group flex items-center gap-2 rounded-full bg-[#1EFFB8] py-1 pr-1 pl-4 text-black lowercase"
+                className="group flex items-center gap-2 rounded-full bg-[#FF1E48] py-1 pr-1 pl-4 text-white lowercase transition-transform duration-300 ease-out hover:scale-105"
                 onClick={() => {
-                  play('open');
+                  play('click');
                   store.setMenu(false);
                 }}
-                onMouseEnter={() => play('hover')}
                 type="button"
               >
-                <span className="font-menu text-base font-medium tracking-[-0.02em] text-black">
+                <span className="font-menu text-base font-medium tracking-[-0.02em] text-white">
                   close
                 </span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full text-black transition-transform duration-300 group-hover:rotate-90">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover:rotate-90">
                   <X className="h-4 w-4" strokeWidth={2.5} />
                 </span>
               </button>
@@ -141,27 +138,21 @@ export default function MenuOverlay() {
                     >
                       <Link
                         className="group font-menu flex items-baseline gap-4"
-                        onMouseEnter={() => play('hover')}
+                        onClick={() => play('click')}
                         to={p.to}
                       >
                         <span
                           className="font-menu inline-flex items-baseline gap-3 font-normal tracking-[-0.045em] opacity-40 transition-opacity group-hover:opacity-100 data-[active]:opacity-100"
                           data-active={active || undefined}
                           style={{
-                            fontSize: 'clamp(2.25rem, 7vw, 4.5rem)',
+                            fontSize: 'clamp(1.75rem, 5.8vh, 3.5rem)',
                             lineHeight: 1.05,
                           }}
                         >
-                          {p.to === '/playground' && (
-                            <Music2
-                              aria-hidden="true"
-                              className="h-[0.8em] w-[0.8em] shrink-0"
-                            />
-                          )}
                           {p.label}
                         </span>
                         {active && (
-                          <span className="h-2 w-2 shrink-0 rounded-full bg-neutral-950" />
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-neutral-50 dark:bg-neutral-950" />
                         )}
                       </Link>
                     </motion.div>
@@ -180,10 +171,10 @@ export default function MenuOverlay() {
                 {socials.map((s) => (
                   <a
                     aria-label={s.label}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-950 text-neutral-50 transition-transform duration-300 hover:-translate-y-1"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-50 text-neutral-950 transition-transform duration-300 ease-out hover:scale-110 dark:bg-neutral-950 dark:text-neutral-50"
                     href={s.href}
                     key={s.label}
-                    onMouseEnter={() => play('hover')}
+                    onClick={() => play('click')}
                     rel="noopener noreferrer"
                     target="_blank"
                   >

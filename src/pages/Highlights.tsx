@@ -192,10 +192,9 @@ function ViewButton({
           : 'text-quaternary hover:text-neutral-50 dark:hover:text-neutral-950',
       )}
       onClick={() => {
-        play('open');
+        play('click');
         onClick();
       }}
-      onMouseEnter={() => play('hover')}
       type="button"
     >
       <span className="relative z-10 transition-transform duration-300 group-hover:scale-110">

@@ -1,7 +1,7 @@
 /** Web Audio engine for UI feedback and the spatial piano sequencer. */
 import { store } from './store';
 
-type Blip = 'hover' | 'toggle' | 'open' | 'enter' | 'grid';
+type Blip = 'click' | 'hover' | 'toggle' | 'open' | 'enter' | 'grid';
 export type PianoStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 type PianoNoteOptions = {
@@ -22,10 +22,12 @@ type MusicVoice = {
 type Spec = {
   attack: number;
   cutoff: number;
+  cutoffEnd?: number;
   dur: number;
   freq: number;
   gain: number;
   glide?: number;
+  subGain?: number;
   type: OscillatorType;
 };
 
@@ -40,11 +42,23 @@ const specs: Record<Blip, Spec> = {
     type: 'sine',
   },
   grid: {
-    attack: 0.02,
-    cutoff: 1200,
-    dur: 0.22,
-    freq: 523.25,
-    gain: 0.005,
+    attack: 0.008,
+    cutoff: 460,
+    cutoffEnd: 180,
+    dur: 0.15,
+    freq: 174.61,
+    gain: 0.018,
+    glide: 130.81,
+    subGain: 0.45,
+    type: 'sine',
+  },
+  click: {
+    attack: 0.002,
+    cutoff: 640,
+    cutoffEnd: 180,
+    dur: 0.07,
+    freq: 168,
+    gain: 0.028,
     type: 'sine',
   },
   hover: {
@@ -102,7 +116,6 @@ const activeMusicVoices: MusicVoice[] = [];
 const lastPlayed: Partial<Record<Blip, number>> = {};
 const pianoBuffers = new Map<number, AudioBuffer>();
 const pianoStatusListeners = new Set<() => void>();
-
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let musicBus: GainNode | null = null;
@@ -166,6 +179,7 @@ function context(): AudioContext | null {
     musicBus.connect(room);
     room.connect(wet);
     wet.connect(master);
+
   }
 
   return ctx;
@@ -268,6 +282,38 @@ export function stopMusic() {
   for (const voice of [...activeMusicVoices]) releaseMusicVoice(ac, voice);
 }
 
+/** Soft hover pitch: higher rows are a little brighter, never trebly. */
+export function gridHoverDetune(row: number, rows: number) {
+  if (rows <= 1) return 0;
+  const t = Math.min(1, Math.max(0, 1 - row / (rows - 1)));
+  return (t - 0.4) * 320;
+}
+
+function playSoftClick(ac: AudioContext, now: number) {
+  if (!master) return;
+
+  const length = Math.floor(ac.sampleRate * 0.028);
+  const buffer = ac.createBuffer(1, length, ac.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < length; i += 1) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / length) ** 3;
+  }
+
+  const noise = ac.createBufferSource();
+  noise.buffer = buffer;
+  const low = ac.createBiquadFilter();
+  low.type = 'lowpass';
+  low.frequency.value = 520;
+  low.Q.value = 0.4;
+  const noiseGain = ac.createGain();
+  noiseGain.gain.setValueAtTime(0.1, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+  noise.connect(low);
+  low.connect(noiseGain);
+  noiseGain.connect(master);
+  noise.start(now);
+}
+
 export function play(name: Blip, detune = 0) {
   if (store.get().sound !== 'on') return;
   const ac = context();
@@ -275,13 +321,20 @@ export function play(name: Blip, detune = 0) {
   if (ac.state === 'suspended') void ac.resume();
 
   const now = ac.currentTime;
-  if (now - (lastPlayed[name] ?? -1) < 0.06) return;
+  if (now - (lastPlayed[name] ?? -1) < 0.07) return;
   lastPlayed[name] = now;
 
-  const { attack, cutoff, dur, freq, gain, glide, type } = specs[name];
+  if (name === 'click') {
+    playSoftClick(ac, now);
+    return;
+  }
+
+  const { attack, cutoff, cutoffEnd, dur, freq, gain, glide, subGain, type } =
+    specs[name];
   const oscillator = ac.createOscillator();
   const filter = ac.createBiquadFilter();
   const voice = ac.createGain();
+  const stopAt = now + dur + 0.05;
 
   oscillator.type = type;
   oscillator.frequency.setValueAtTime(freq, now);
@@ -292,6 +345,9 @@ export function play(name: Blip, detune = 0) {
 
   filter.type = 'lowpass';
   filter.frequency.setValueAtTime(cutoff, now);
+  if (cutoffEnd) {
+    filter.frequency.exponentialRampToValueAtTime(cutoffEnd, now + dur);
+  }
   filter.Q.value = 0.7;
   voice.gain.setValueAtTime(0.0001, now);
   voice.gain.linearRampToValueAtTime(gain, now + attack);
@@ -301,7 +357,23 @@ export function play(name: Blip, detune = 0) {
   filter.connect(voice);
   voice.connect(master);
   oscillator.start(now);
-  oscillator.stop(now + dur + 0.05);
+  oscillator.stop(stopAt);
+
+  if (subGain) {
+    const sub = ac.createOscillator();
+    const subAmp = ac.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(freq / 2, now);
+    sub.detune.setValueAtTime(detune, now);
+    if (glide) {
+      sub.frequency.exponentialRampToValueAtTime(glide / 2, now + dur * 0.7);
+    }
+    subAmp.gain.value = subGain;
+    sub.connect(subAmp);
+    subAmp.connect(filter);
+    sub.start(now);
+    sub.stop(stopAt);
+  }
 }
 
 function nearestPianoSample(midi: number) {

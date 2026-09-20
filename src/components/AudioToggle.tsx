@@ -14,7 +14,7 @@ export default function AudioToggle() {
   const toggle = () => {
     initAudio();
     store.toggleSound();
-    play('toggle');
+    play('click');
   };
 
   return (
@@ -24,7 +24,7 @@ export default function AudioToggle() {
       className={cn(
         'pointer-events-auto fixed right-[var(--page-inset-x)] bottom-[var(--page-inset-x)] z-40',
         'flex h-9 w-9 items-center justify-center rounded-full',
-        'border border-black/15 bg-white/70 backdrop-blur-sm dark:border-white/15 dark:bg-neutral-900/60',
+        'border border-black/15 bg-paper/80 backdrop-blur-sm dark:border-white/15 dark:bg-neutral-900/60',
         'text-tertiary hover:text-primary transition-colors',
       )}
       onClick={toggle}

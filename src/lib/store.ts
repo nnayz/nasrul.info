@@ -1,7 +1,7 @@
 /** Shared UI and sequencer state without pulling in a state dependency. */
 import { useSyncExternalStore } from 'react';
 
-export type SoundState = 'unknown' | 'on' | 'off';
+export type SoundState = 'on' | 'off';
 export type MusicTool = 'draw' | 'erase';
 
 type State = {
@@ -32,7 +32,7 @@ let state: State = {
   presetSignal: 0,
   restartSequenceSignal: 0,
   sequencerPlaying: false,
-  sound: 'unknown',
+  sound: 'off',
   stepsPerBeat: 4,
   tempo: 108,
   volume: 0.72,

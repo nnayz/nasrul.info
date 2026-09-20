@@ -47,7 +47,7 @@ export const Route = createRootRoute({
         name: 'viewport',
       },
       { content: 'AI/ML Engineer.', name: 'description' },
-      { content: '#ffffff', name: 'theme-color' },
+      { content: '#0a0a0a', name: 'theme-color' },
       { content: 'Nasrul Huda', property: 'og:title' },
       { content: 'website', property: 'og:type' },
       { content: 'https://nasrul.info', property: 'og:url' },

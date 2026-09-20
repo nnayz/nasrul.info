@@ -4,7 +4,7 @@
  * sequencer. Horizontal position is time, vertical position is pitch, and old
  * notes slowly fade out of the composition.
  */
-import { initAudio, play, playGridNote } from '@/lib/audio';
+import { initAudio, playGridNote } from '@/lib/audio';
 import { store } from '@/lib/store';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Music2 } from 'lucide-react';
@@ -28,7 +28,7 @@ const TRAIL_RADIUS = 14;
 const TRAIL_DURATION = 180;
 const TRAIL_SPACING = 5;
 const MAX_TRAIL_POINTS = 12;
-const SOUND_INTERVAL = 90;
+const SOUND_INTERVAL = 120;
 const TEMPO = 108;
 const STEP_DURATION = (60 / TEMPO / 4) * 1000;
 const SEQUENCE_STEPS = 32;
@@ -224,7 +224,6 @@ export default function CursorTrail() {
         hintDismissed ||
         hasLocked ||
         appState.menuOpen ||
-        appState.sound === 'unknown' ||
         targetElement?.closest(INTERACTIVE_SELECTOR)
       ) {
         hideHint();
@@ -260,8 +259,6 @@ export default function CursorTrail() {
         return;
 
       previousSoundAt = now;
-      const pitchStep = ((column * 7 + row * 11) % 5) - 2;
-      play('grid', pitchStep * 14);
     };
 
     const scheduleSequencer = () => {
@@ -419,7 +416,7 @@ export default function CursorTrail() {
 
     const isGridTarget = (event: PointerEvent) => {
       const appState = store.get();
-      if (appState.menuOpen || appState.sound === 'unknown') return false;
+      if (appState.menuOpen) return false;
 
       const targetElement =
         event.target instanceof Element ? event.target : null;

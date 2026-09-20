@@ -4,7 +4,6 @@ import Background from '@components/Background';
 import CursorTrail from '@components/CursorTrail';
 import MenuOverlay from '@components/MenuOverlay';
 import Navbar from '@components/Navbar';
-import SoundGate from '@components/SoundGate';
 import { useRouterState } from '@tanstack/react-router';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from 'next-themes';
@@ -19,7 +18,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isEditorial =
     pathname === '/writing' || pathname === '/highlights' || isArticle;
   const isPlayground = pathname === '/playground';
-
   return (
     <div
       className={cn('relative min-h-screen', isEditorial && 'article-shell')}
@@ -30,17 +28,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Background showGrid={isHome} />
       )}
       {isHome && <CursorTrail />}
-      {!isPlayground && <div aria-hidden className="nav-fade" />}
-      <SoundGate />
+      <div aria-hidden className="nav-fade" />
+      <div aria-hidden className="page-frame-fade-bottom" />
       <Navbar />
       <MenuOverlay />
 
       <main
         className={cn(
           'relative z-10 w-full font-sans antialiased',
-          isPlayground
-            ? 'min-h-[100svh]'
-            : 'pointer-events-none flex min-h-screen flex-col justify-start',
+          'pointer-events-none flex min-h-screen flex-col justify-start',
           '[&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto [&_nav]:pointer-events-auto',
           '[&_canvas]:pointer-events-auto [&_div[class*="cursor-pointer"]]:pointer-events-auto',
         )}
@@ -58,9 +54,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="dark"
       disableTransitionOnChange
-      enableSystem
+      enableSystem={false}
     >
       {children}
     </ThemeProvider>

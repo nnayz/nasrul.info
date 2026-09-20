@@ -41,13 +41,13 @@ function formatDuration(preset: Preset) {
 function toggleGlobalSound() {
   initAudio();
   if (store.get().sound === 'on') {
-    play('toggle');
+    play('click');
     stopMusic();
     store.setSound('off');
   } else {
     store.setSound('on');
     void preloadPiano();
-    play('toggle');
+    play('click');
   }
 }
 
@@ -132,7 +132,7 @@ export default function MusicControls() {
   return (
     <section
       aria-label="Sequencer controls"
-      className="pointer-events-auto relative z-10 shrink-0 border-t border-black/10 bg-stone-50 pb-[env(safe-area-inset-bottom)] select-none dark:border-white/10 dark:bg-neutral-950"
+      className="pointer-events-auto relative z-10 shrink-0 border-t border-black/10 bg-paper pb-[env(safe-area-inset-bottom)] select-none dark:border-white/10 dark:bg-neutral-950"
       role="toolbar"
     >
       <div className="flex h-10 items-stretch border-b border-black/10 px-3 sm:px-6 dark:border-white/10">

@@ -55,8 +55,7 @@ export function Select<Value extends string | number>({
             : 'text-neutral-50 hover:text-neutral-950 dark:text-neutral-950 dark:hover:text-neutral-50',
           tiny ? 'gap-1.5 px-2 py-1 text-[10px]' : 'gap-2 px-3 py-2 text-xs',
         )}
-        onClick={() => play('open')}
-        onMouseEnter={() => play('hover')}
+        onClick={() => play('click')}
       >
         <span className="relative z-10 size-1.5 shrink-0 rounded-full bg-current transition-transform duration-300 group-hover:scale-150" />
         <span
@@ -137,7 +136,7 @@ export function Select<Value extends string | number>({
                     <BaseSelect.Item
                       className="group/item cursor-default overflow-hidden whitespace-nowrap outline-none select-none"
                       key={option.value}
-                      onMouseEnter={() => play('hover')}
+                      onClick={() => play('click')}
                       value={option.value}
                     >
                       <motion.div

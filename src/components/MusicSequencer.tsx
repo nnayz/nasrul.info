@@ -1,9 +1,10 @@
 /**
  * A cursor-driven highlight for the background grid. Nearby cell interiors
  * fill with white while clicks place pitched green notes into a looping spatial
- * sequencer. Horizontal position is time and vertical position is pitch.
+ * sequencer. Horizontal position is pitch (high on the left) and vertical
+ * position is time, playing from the bottom up like piano tiles.
  */
-import { initAudio, play, playGridNote, stopMusic } from '@/lib/audio';
+import { initAudio, playGridNote, stopMusic } from '@/lib/audio';
 import { PRESETS, type Preset } from '@/lib/presets';
 import { store } from '@/lib/store';
 import { useEffect, useRef } from 'react';
@@ -32,7 +33,7 @@ const TRAIL_RADIUS = 14;
 const TRAIL_DURATION = 180;
 const TRAIL_SPACING = 5;
 const MAX_TRAIL_POINTS = 12;
-const SOUND_INTERVAL = 90;
+const SOUND_INTERVAL = 120;
 const SCHEDULER_INTERVAL = 25;
 const SCHEDULER_LOOKAHEAD = 100;
 const MAX_STEP_VOICES = 12;
@@ -40,10 +41,10 @@ const MAX_NOTES = 512;
 const LOCK_PULSE_DURATION = 460;
 const LOCK_COLOR = '30,255,184';
 const MIN_TIMELINE_SCREENS = 2;
-const STRIKE_COLUMN = 1;
+const STRIKE_INSET = 1;
 
-// Rows form a C-major scale. The bottom row starts at C2 and rises through
-// the scale, keeping random clicks harmonic while retaining melodic direction.
+// Columns form a C-major scale. The left column is high and the right column
+// is low, keeping random clicks harmonic while retaining melodic direction.
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
 const stepDurationForTempo = (tempo: number, stepsPerBeat: number) =>
   (60 / tempo / stepsPerBeat) * 1000;
@@ -98,12 +99,12 @@ export default function MusicSequencer() {
     let tempo = store.get().tempo;
     let sequenceSteps = store.get().loopSteps;
     let stepsPerBeat = store.get().stepsPerBeat;
-    let worldWidth = Math.max(
-      width * MIN_TIMELINE_SCREENS,
+    let worldHeight = Math.max(
+      height * MIN_TIMELINE_SCREENS,
       sequenceSteps * gridSize,
     );
     let viewOffset = 0;
-    let renderedGridOffsetX = 0;
+    let renderedGridOffsetY = 0;
     let stepDuration = stepDurationForTempo(tempo, stepsPerBeat);
     let playing = store.get().sequencerPlaying;
     let pausedStep = 0;
@@ -124,21 +125,21 @@ export default function MusicSequencer() {
       (Position & { pointerId: number; viewOffset: number }) | null = null;
     let raf = 0;
 
-    const updateWorldWidth = () => {
-      worldWidth = Math.max(
-        width * MIN_TIMELINE_SCREENS,
+    const updateWorldHeight = () => {
+      worldHeight = Math.max(
+        height * MIN_TIMELINE_SCREENS,
         sequenceSteps * gridSize,
       );
-      viewOffset = Math.min(viewOffset, Math.max(0, worldWidth - width));
+      viewOffset = Math.min(viewOffset, Math.max(0, worldHeight - height));
     };
 
     const relayoutLocks = () => {
-      updateWorldWidth();
+      updateWorldHeight();
       for (const lock of locks) {
-        lock.x = ((lock.step + 0.5) / sequenceSteps) * worldWidth;
-        lock.column = Math.floor(lock.x / gridSize);
-        lock.row = rowForMidi(lock.midi);
-        lock.y = lock.row * gridSize + gridSize / 2;
+        lock.y = worldYForStep(lock.step);
+        lock.row = Math.floor(lock.y / gridSize);
+        lock.column = columnForMidi(lock.midi);
+        lock.x = lock.column * gridSize + gridSize / 2;
       }
     };
 
@@ -191,19 +192,19 @@ export default function MusicSequencer() {
     ) => {
       if (opacity <= 0) return;
 
-      const firstColumn = Math.floor(
-        (x - radius - renderedGridOffsetX) / gridSize,
+      const firstColumn = Math.floor((x - radius) / gridSize);
+      const lastColumn = Math.floor((x + radius) / gridSize);
+      const firstRow = Math.floor(
+        (y - radius - renderedGridOffsetY) / gridSize,
       );
-      const lastColumn = Math.floor(
-        (x + radius - renderedGridOffsetX) / gridSize,
+      const lastRow = Math.floor(
+        (y + radius - renderedGridOffsetY) / gridSize,
       );
-      const firstRow = Math.floor((y - radius) / gridSize);
-      const lastRow = Math.floor((y + radius) / gridSize);
 
       for (let row = firstRow; row <= lastRow; row += 1) {
         for (let column = firstColumn; column <= lastColumn; column += 1) {
-          const left = renderedGridOffsetX + column * gridSize + 1;
-          const top = row * gridSize + 1;
+          const left = column * gridSize + 1;
+          const top = renderedGridOffsetY + row * gridSize + 1;
           const right = left + gridSize - 1;
           const bottom = top + gridSize - 1;
           const distanceX = Math.max(left - x, 0, x - right);
@@ -224,28 +225,33 @@ export default function MusicSequencer() {
       return (-24 + octave * 12 + MAJOR_SCALE[note]) * 100;
     };
 
-    const detuneForRow = (row: number) => {
-      const rows = Math.ceil(height / gridSize);
-      const verticalPosition = Math.min(
-        Math.max((rows - 1 - row) / Math.max(rows - 1, 1), 0),
+    const detuneForColumn = (column: number) => {
+      const columns = Math.ceil(width / gridSize);
+      const horizontalPosition = Math.min(
+        Math.max((columns - 1 - column) / Math.max(columns - 1, 1), 0),
         1,
       );
       return detuneForDegree(
-        Math.round(verticalPosition * MAJOR_SCALE.length * 4),
+        Math.round(horizontalPosition * MAJOR_SCALE.length * 4),
       );
     };
 
-    const panForX = (x: number) => (x / Math.max(worldWidth, 1)) * 1.5 - 0.75;
+    const panForX = (x: number) => (x / Math.max(width, 1)) * 1.5 - 0.75;
 
-    const sequenceStepForX = (x: number) =>
+    const worldYForStep = (step: number) =>
+      worldHeight - ((step + 0.5) / sequenceSteps) * worldHeight;
+
+    const sequenceStepForY = (y: number) =>
       Math.min(
-        Math.floor((x / Math.max(worldWidth, 1)) * sequenceSteps),
+        Math.floor(
+          ((worldHeight - y) / Math.max(worldHeight, 1)) * sequenceSteps,
+        ),
         sequenceSteps - 1,
       );
 
     const playCellSound = (now: number) => {
-      const column = Math.floor((glow.x + visibleCanvasOffset(now)) / gridSize);
-      const row = Math.floor(glow.y / gridSize);
+      const column = Math.floor(glow.x / gridSize);
+      const row = Math.floor((glow.y + visibleCanvasOffset(now)) / gridSize);
       const cell = `${column}:${row}`;
       if (cell === previousSoundCell) return;
 
@@ -254,8 +260,6 @@ export default function MusicSequencer() {
         return;
 
       previousSoundAt = now;
-      const pitchStep = ((column * 7 + row * 11) % 5) - 2;
-      play('grid', pitchStep * 14);
     };
 
     const scheduleSequencer = () => {
@@ -313,15 +317,14 @@ export default function MusicSequencer() {
         ? pausedStep
         : Math.max(0, (now - transportStartedAt) / stepDuration);
 
-    const maxViewOffset = () => Math.max(0, worldWidth - width);
+    const maxViewOffset = () => Math.max(0, worldHeight - height);
 
-    const strikeX = () => (STRIKE_COLUMN + 0.5) * gridSize;
+    const strikeY = () => height - (STRIKE_INSET + 0.5) * gridSize;
 
     const viewOffsetForStep = (step: number) => {
       const loopPosition =
         ((step % sequenceSteps) + sequenceSteps) % sequenceSteps;
-      const activeNoteX = ((loopPosition + 0.5) / sequenceSteps) * worldWidth;
-      return activeNoteX - strikeX();
+      return worldYForStep(loopPosition) - strikeY();
     };
 
     const visibleCanvasOffset = (now: number) =>
@@ -365,7 +368,7 @@ export default function MusicSequencer() {
       transportStartedAt = null;
       nextSequenceStep = 0;
       nextStepAt = 0;
-      viewOffset = 0;
+      viewOffset = maxViewOffset();
       stopMusic();
     };
 
@@ -376,10 +379,10 @@ export default function MusicSequencer() {
       relayoutLocks();
     };
 
-    const rowForMidi = (midi: number) => {
-      const rows = Math.ceil(height / gridSize);
+    const columnForMidi = (midi: number) => {
+      const columns = Math.ceil(width / gridSize);
       const normalized = Math.min(1, Math.max(0, (midi - 36) / 48));
-      return Math.round((rows - 1) * (1 - normalized));
+      return Math.round((columns - 1) * (1 - normalized));
     };
 
     const applyPreset = (preset: Preset) => {
@@ -389,27 +392,24 @@ export default function MusicSequencer() {
       sequenceSteps = preset.steps;
       stepsPerBeat = preset.stepsPerBeat;
       stepDuration = stepDurationForTempo(tempo, stepsPerBeat);
-      viewOffset = 0;
-      updateWorldWidth();
+      updateWorldHeight();
       locks = preset.notes
         .slice(0, MAX_NOTES)
         .map(([step, midi, duration, velocity]) => {
-          const row = rowForMidi(midi);
-          // Timing stays exact even when the viewport has fewer cells than the
-          // arrangement has steps.
-          const x = ((step + 0.5) / sequenceSteps) * worldWidth;
+          const column = columnForMidi(midi);
+          const y = worldYForStep(step);
           return {
-            column: Math.floor(x / gridSize),
+            column,
             createdAt,
             detune: (midi - 60) * 100,
             duration,
             lastPlayedAt: 0,
             midi,
-            row,
+            row: Math.floor(y / gridSize),
             step,
             velocity,
-            x,
-            y: row * gridSize + gridSize / 2,
+            x: column * gridSize + gridSize / 2,
+            y,
           };
         });
 
@@ -419,16 +419,16 @@ export default function MusicSequencer() {
     };
 
     const drawStrikeBoundary = (dark: boolean) => {
-      const left = STRIKE_COLUMN * gridSize + 1;
-      const rows = Math.ceil(height / gridSize);
+      const top = height - (STRIKE_INSET + 1) * gridSize + 1;
+      const columns = Math.ceil(width / gridSize);
       ctx.save();
       ctx.fillStyle = dark
         ? 'rgba(255,255,255,0.72)'
         : 'rgba(255,255,255,0.96)';
       ctx.strokeStyle = dark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)';
       ctx.lineWidth = 0.75;
-      for (let row = 0; row < rows; row += 1) {
-        const top = row * gridSize + 1;
+      for (let column = 0; column < columns; column += 1) {
+        const left = column * gridSize + 1;
         ctx.fillRect(left, top, gridSize - 1, gridSize - 1);
         ctx.strokeRect(left + 0.5, top + 0.5, gridSize - 2, gridSize - 2);
       }
@@ -455,26 +455,26 @@ export default function MusicSequencer() {
       const trailOpacity = dark ? 0.028 : 0.045;
       const glowOpacity = dark ? 0.78 : 1;
       const canvasOffset = visibleCanvasOffset(now);
-      renderedGridOffsetX = -(
+      renderedGridOffsetY = -(
         ((canvasOffset % gridSize) + gridSize) %
         gridSize
       );
       canvas.parentElement?.style.setProperty(
-        '--grid-offset-x',
-        `${renderedGridOffsetX}px`,
+        '--grid-offset-y',
+        `${renderedGridOffsetY}px`,
       );
       drawStrikeBoundary(dark);
 
       for (const lock of locks) {
-        const screenX = lock.x - canvasOffset;
+        const screenY = lock.y - canvasOffset;
         const glowRadius = GLOW_RADIUS * radiusScale;
-        if (screenX < -glowRadius || screenX > width + glowRadius) continue;
+        if (screenY < -glowRadius || screenY > height + glowRadius) continue;
         const pulseAge = now - lock.lastPlayedAt;
         const pulse =
           pulseAge >= 0 && pulseAge < LOCK_PULSE_DURATION
             ? Math.pow(1 - pulseAge / LOCK_PULSE_DURATION, 2) * 0.3
             : 0;
-        drawCellGlow(screenX, lock.y, glowRadius, 0.64 + pulse, LOCK_COLOR);
+        drawCellGlow(lock.x, screenY, glowRadius, 0.64 + pulse, LOCK_COLOR);
       }
 
       for (const point of trail) {
@@ -517,10 +517,10 @@ export default function MusicSequencer() {
     };
 
     const gridCellForPosition = (position: Position): GridCell => ({
-      column: Math.floor(
-        (position.x + visibleCanvasOffset(performance.now())) / gridSize,
+      column: Math.floor(position.x / gridSize),
+      row: Math.floor(
+        (position.y + visibleCanvasOffset(performance.now())) / gridSize,
       ),
-      row: Math.floor(position.y / gridSize),
     });
 
     // Input belongs to this work surface alone. The surrounding header and
@@ -537,9 +537,9 @@ export default function MusicSequencer() {
       audible = true,
     ) => {
       const now = performance.now();
-      const detune = detuneForRow(row);
+      const detune = detuneForColumn(column);
       const midi = Math.round(60 + detune / 100);
-      const step = sequenceStepForX(column * gridSize + gridSize / 2);
+      const step = sequenceStepForY(row * gridSize + gridSize / 2);
       const x = column * gridSize + gridSize / 2;
       const y = row * gridSize + gridSize / 2;
       const existingIndex = locks.findIndex(
@@ -658,7 +658,7 @@ export default function MusicSequencer() {
           const deltaX = position.x - touchStart.x;
           const deltaY = position.y - touchStart.y;
           if (!touchPanning && Math.hypot(deltaX, deltaY) > 10) {
-            if (!playing && Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (!playing && Math.abs(deltaY) > Math.abs(deltaX)) {
               touchPanning = true;
             } else {
               touchStart = null;
@@ -668,7 +668,7 @@ export default function MusicSequencer() {
           if (touchPanning && touchStart) {
             viewOffset = Math.min(
               maxViewOffset(),
-              Math.max(0, touchStart.viewOffset - deltaX),
+              Math.max(0, touchStart.viewOffset - deltaY),
             );
             requestDraw();
           }
@@ -740,18 +740,18 @@ export default function MusicSequencer() {
 
     const onWheel = (event: WheelEvent) => {
       if (playing || store.get().menuOpen) return;
-      const horizontalDelta =
-        Math.abs(event.deltaX) >= Math.abs(event.deltaY)
-          ? event.deltaX
+      const verticalDelta =
+        Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+          ? event.deltaY
           : event.shiftKey
-            ? event.deltaY
+            ? event.deltaX
             : 0;
-      if (Math.abs(horizontalDelta) < 0.5) return;
+      if (Math.abs(verticalDelta) < 0.5) return;
 
       event.preventDefault();
       viewOffset = Math.min(
         maxViewOffset(),
-        Math.max(0, viewOffset + horizontalDelta),
+        Math.max(0, viewOffset + verticalDelta),
       );
       requestDraw();
     };
@@ -805,7 +805,7 @@ export default function MusicSequencer() {
         stepsPerBeat = nextState.stepsPerBeat;
         sequenceSteps = nextState.loopSteps;
         stepDuration = stepDurationForTempo(tempo, stepsPerBeat);
-        updateWorldWidth();
+        updateWorldHeight();
         locks = [];
         hasLocked = false;
         playing = false;
@@ -879,7 +879,7 @@ export default function MusicSequencer() {
       themeObserver.disconnect();
       unsubscribe();
       canvas.parentElement?.style.removeProperty('--grid-size');
-      canvas.parentElement?.style.removeProperty('--grid-offset-x');
+      canvas.parentElement?.style.removeProperty('--grid-offset-y');
       resetTransport();
       cancelAnimationFrame(raf);
       store.setNoteCount(0);

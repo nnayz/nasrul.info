@@ -18,7 +18,6 @@ export default function Navbar() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const isPlayground = pathname === '/playground';
   const back = pathname.startsWith('/highlights/')
     ? { label: 'Highlights', to: '/highlights' as const }
     : pathname.startsWith('/writing/')
@@ -30,25 +29,21 @@ export default function Navbar() {
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         'fixed z-[70] flex h-9 items-center',
-        isPlayground
-          ? 'top-3.5 right-4 justify-end sm:right-6'
-          : 'inset-x-[var(--page-inset-x)] top-[var(--page-inset-y)] justify-between',
+        'inset-x-[var(--page-inset-x)] top-[var(--page-inset-y)] justify-between',
       )}
       initial={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      {!isPlayground && (
-        <div className="flex h-9 items-center">
-          {back && (
-            <Link className="page-back" to={back.to}>
-              <span aria-hidden="true" className="back-arrow">
-                ↩
-              </span>
-              {back.label}
-            </Link>
-          )}
-        </div>
-      )}
+      <div className="flex h-9 items-center">
+        {back && (
+          <Link className="page-back" to={back.to}>
+            <span aria-hidden="true" className="back-arrow">
+              ↩
+            </span>
+            {back.label}
+          </Link>
+        )}
+      </div>
 
       <div className="flex h-9 items-center gap-2">
         <button
@@ -72,7 +67,7 @@ export default function Navbar() {
           aria-expanded={menuOpen}
           aria-label="Open menu"
           className={cn(
-            'group pointer-events-auto relative inline-flex h-9 items-center gap-2 rounded-full px-4',
+            'group pointer-events-auto relative inline-flex h-9 items-center gap-2 rounded-full border-none px-4',
             'font-menu text-sm font-medium tracking-[-0.02em] lowercase transition-colors',
             'text-neutral-50 dark:text-neutral-950',
             // On hover the pill fills with its own inverse, so the label + dot
@@ -80,10 +75,9 @@ export default function Navbar() {
             'hover:text-neutral-950 dark:hover:text-neutral-50',
           )}
           onClick={() => {
-            play('open');
+            play('click');
             store.setMenu(true);
           }}
-          onMouseEnter={() => play('hover')}
           type="button"
         >
           {/* The pill's surface is the menu card, pre-expansion: while closed it
