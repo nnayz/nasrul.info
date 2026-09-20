@@ -1,0 +1,24 @@
+---
+title: Zeus
+summary: A native macOS command center for running coding agents in parallel without losing their terminals.
+kind: personal
+start: 2026-08
+---
+
+I was running Claude Code, Codex, Cursor, and a pile of shells, and keeping track of them meant scanning terminals. Which agent was still working? Which one needed something from me? Closing a window could also mean killing the work inside it.
+
+Zeus grew out of that. I built a native macOS workbench in Rust with GPUI, with a real terminal for each agent and a sidebar that reduces its state to working, waiting, or done. I still have the terminals when I need the details. I don't have to read all of them just to find out who is waiting.
+
+## Closing the window shouldn't stop the work
+
+The main architectural decision was to keep the processes out of the UI. A background Engine owns the sessions, Git worktrees, and SSH remotes. The window is a way to reach that work, not the thing keeping it alive.
+
+That separation takes more machinery than putting terminals inside an app: the Engine, PTY holders, and a versioned protocol between the pieces. But I can quit and reopen Zeus without ending the agent sessions.
+
+## More than one way in
+
+I made agent support catalog data rather than hard-coding each CLI into the app. Adding another agent is relatively cheap that way, though detecting what it is doing still relies on heuristics.
+
+Through MCP, a running agent can spawn and watch another agent. I also built a SwiftUI iOS companion that connects to a local HTTPS sidecar, so I can check the sessions from my phone. Both give me ways to reach the work without keeping the Mac window open.
+
+Zeus is open source. The [docs](https://nnayz.github.io/zeus/docs) cover the workbench, and the [code is on GitHub](https://github.com/nnayz/zeus).

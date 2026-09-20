@@ -9,7 +9,8 @@ Built with TanStack Start, TanStack Router, Tailwind CSS, and Nitro.
 Long-form content lives outside the application code:
 
 - `content/writing/` contains articles for `/writing/:slug`.
-- `content/highlights/` contains project write-ups for `/highlights/:slug`.
+- `content/highlights/` contains project write-ups. The listing is `/work`;
+  each write-up lives at `/highlights/:slug`.
 
 Each MDX file owns its frontmatter and body. The content collections in
 `metadata.ts` expose that frontmatter to listing pages. Both detail routes use

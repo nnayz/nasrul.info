@@ -7,10 +7,14 @@ start: 2025-12
 end: 2026-02
 ---
 
-The ACL Anthology is huge, and keyword search misses papers that say the same idea in different words. Researchers hunting related work needed something closer to meaning than exact phrases.
+Keyword search can miss related papers simply because their authors use different words for the same idea. I built a search over ACL Anthology abstracts to get beyond that exact wording.
 
-I built a semantic search system over anthology abstracts: offline embedding and indexing into Qdrant, then online retrieval with LLM query reformulation and reciprocal rank fusion. You can ask in plain language or paste a paper ID and treat its abstract as the query. A FastAPI backend and React UI use LangChain to coordinate retrieval and stream answers with inline citations.
+You can ask a question in plain language, but you can also give it a paper ID. It uses that paper's abstract as the query, so a paper you already have becomes a way to find related work.
 
-Splitting Fireworks for embeddings from Groq for reformulation kept costs and latency manageable, at the price of two providers and a clear offline/online boundary. RRF over multiple reformulations improved recall without a heavy re-ranker.
+The work is split into two parts. Before anyone searches, I generate embeddings for the abstracts and index them in Qdrant. At search time, an LLM reformulates the query in several ways. I combine the resulting rankings with reciprocal rank fusion, which improved recall without adding a heavy re-ranker.
+
+I used Fireworks for embeddings and Groq for query reformulation. That kept cost and latency manageable, though it meant working with two providers and keeping a clear boundary between the offline indexing work and online searches.
+
+The React interface connects to a FastAPI backend, with LangChain coordinating retrieval. Answers stream back with inline citations, so you can follow the response back to the papers.
 
 The project is open source. You can [try the live demo](https://acla.nasrul.info) or [explore the full pipeline on GitHub](https://github.com/nnayz/acl-anthology-rag).

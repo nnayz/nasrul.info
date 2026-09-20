@@ -18,11 +18,12 @@ export default function Navbar() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const back = pathname.startsWith('/highlights/')
-    ? { label: 'Highlights', to: '/highlights' as const }
-    : pathname.startsWith('/writing/')
-      ? { label: 'Writing', to: '/writing' as const }
-      : null;
+  const back =
+    pathname.startsWith('/highlights/') || pathname.startsWith('/work/')
+      ? { label: 'Work', to: '/work' as const }
+      : pathname.startsWith('/writing/')
+        ? { label: 'Writing', to: '/writing' as const }
+        : null;
 
   return (
     <motion.nav

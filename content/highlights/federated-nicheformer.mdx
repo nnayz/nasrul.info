@@ -8,10 +8,16 @@ start: 2025-12
 end: 2026-02
 ---
 
-Spatial transcriptomics labs often cannot pool raw single-cell data, yet they still want foundation models fine-tuned on what each site holds. Central training was accurate but not always allowed.
+For this comparison, I split mouse brain spatial data by anatomy: dorsal, mid, and ventral. Each client held data from a different region, rather than a uniform slice of the same pool. The unevenness was deliberate.
 
-Using Python and PyTorch, I fine-tuned Nicheformer for 24-class cell-type classification on mouse brain spatial data and compared centralized, federated, and purely local training. Clients were split by anatomy (dorsal, mid, ventral) so the federated setting was deliberately non-IID, with one replicate held out for evaluation.
+I was fine-tuning Nicheformer to classify 24 cell types and comparing three ways of training it: pooling the data centrally, training across clients without sharing samples, and training each client on its own. Spatial transcriptomics labs cannot always pool their raw single-cell data, so the centralized setup isn't always an option, even when it gives the best result.
 
-Federated training closed most of the gap to a full central run without sharing samples: centralized reached 94.45% accuracy, federated 92.76%, and local clients averaged far lower. The tradeoff was heavier training logistics and a drop in macro-F1 versus the central baseline.
+The anatomical split made the federated setup non-IID. It put the comparison in a setting where the clients didn't all have the same distribution of data. I used Python and PyTorch for the fine-tuning and held out one replicate for evaluation.
 
-The [code and write-ups live on GitHub](https://github.com/nnayz/ft-nicheformer) for anyone repeating the comparison.
+## Close on accuracy, but not the same
+
+My federated run reached 92.76% accuracy, compared with 94.45% for centralized training. The local clients averaged much lower. Training together closed most of that gap without sharing the underlying samples.
+
+But accuracy was only part of the comparison. The federated run had lower macro-F1 than the centralized baseline, and it involved heavier training logistics. The two accuracy figures alone don't tell the whole story.
+
+The [code and write-ups are on GitHub](https://github.com/nnayz/ft-nicheformer), including the comparison between the training setups.

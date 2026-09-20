@@ -8,10 +8,12 @@ start: 2025-02
 end: 2025-05
 ---
 
-Discourse researchers at Hamburg needed software that could run serious text analysis without every step living in a one-off notebook.
+Discourse analysis at Hamburg needed to work outside the notebook it was written in. Researchers were working with large text collections, and they needed a shared application rather than a series of one-off scripts.
 
-On the DATS project I shipped full-stack pieces: React and TypeScript on the front, FastAPI services and REST APIs behind them, plus NLP preprocessing and analysis paths for large linguistic collections.
+I worked on that application as part of DATS at the University of Hamburg's Language Technology Lab. My work covered the React and TypeScript interface, FastAPI services, and the NLP preprocessing and analysis paths behind them. I was connecting the research code to the place where people would use it.
 
-Fitting research algorithms into a shared platform meant stable APIs and Dockerised services instead of scripts only the author could run. That slowed some experiments and made collaboration and demos much easier.
+That changed what an experiment needed around it. The analysis had to fit behind a stable REST API, and the services had to run in Docker rather than only in their author's environment. Those parts were as much a part of my work as the interface.
+
+It wasn't an unqualified improvement for every step. Some experiments moved more slowly when they had to fit into the shared platform. Collaboration and demos became easier, though, because the code no longer had to stay in a script that only its author could run.
 
 The [suite is available on the university demo host](https://dats.ltdemos.informatik.uni-hamburg.de) for the Language Technology group.

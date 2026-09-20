@@ -1,7 +1,7 @@
-import Highlights from '../pages/Highlights';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/highlights')({
-  component: Highlights,
-  head: () => ({ meta: [{ title: 'Highlights · Nasrul Huda' }] }),
+  beforeLoad: () => {
+    throw redirect({ replace: true, to: '/work' });
+  },
 });

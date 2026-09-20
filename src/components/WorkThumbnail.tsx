@@ -7,9 +7,11 @@ import { useEffect, useState } from 'react';
 
 export default function WorkThumbnail({
   meta,
+  plain = false,
   title,
 }: {
   meta: string;
+  plain?: boolean;
   title: string;
 }) {
   const seed = stableHazeSeed(`work:${title}`);
@@ -43,17 +45,21 @@ export default function WorkThumbnail({
           src={src}
         />
       )}
-      <div
-        className="absolute right-0 bottom-[12%] left-[12%] flex min-h-[42%] flex-col justify-center px-[8%] py-[6%] text-[#08090a]"
-        style={{ backgroundColor: `color-mix(in oklab, ${color} 24%, white)` }}
-      >
-        <span className="text-[clamp(1.125rem,7.5cqi,2rem)] leading-[1.02] font-semibold tracking-[-0.035em] text-balance">
-          {title}
-        </span>
-        <span className="mt-[4%] truncate text-[clamp(0.625rem,3.5cqi,0.8125rem)] leading-[1.2] font-medium opacity-65">
-          {meta}
-        </span>
-      </div>
+      {!plain && (
+        <div
+          className="absolute right-0 bottom-[12%] left-[12%] flex min-h-[42%] flex-col justify-center px-[8%] py-[6%] text-[#08090a]"
+          style={{
+            backgroundColor: `color-mix(in oklab, ${color} 24%, white)`,
+          }}
+        >
+          <span className="text-[clamp(1.125rem,7.5cqi,2rem)] leading-[1.02] font-semibold tracking-[-0.035em] text-balance">
+            {title}
+          </span>
+          <span className="mt-[4%] truncate text-[clamp(0.625rem,3.5cqi,0.8125rem)] leading-[1.2] font-medium opacity-65">
+            {meta}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

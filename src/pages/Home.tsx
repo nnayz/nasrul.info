@@ -101,9 +101,8 @@ function AboutMe() {
           and keep learning by reading, making, and exploring new ideas.
         </p>
         <p>
-          Check out my{' '}
-          <InternalLink to="/highlights">highlights and projects</InternalLink>{' '}
-          if you want to learn more about me.
+          Check out my <InternalLink to="/work">work</InternalLink> if you want
+          to learn more about me.
         </p>
         <p>
           I also take on{' '}

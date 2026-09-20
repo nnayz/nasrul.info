@@ -8,10 +8,14 @@ start: 2025-10
 end: 2026-04
 ---
 
-SynTwin needed conversational agents that could drive digital-twin workflows without collapsing under multi-turn, stateful dialogue. Reliability mattered more than a clever demo.
+A longer conversation gives an agent more context to carry, and a tool can fail halfway through a turn. At SynTwin, I worked on keeping conversational agents stable through both, while they drove digital-twin workflows.
 
-I built agentic workflows and orchestration in Python with LiveKit, tuned prompts for consistency across long sessions, and shipped a React/Vite UI wired to Supabase for auth and real-time sync. Docker kept the backend services portable as the work moved between agent design, infrastructure, and the surfaces users actually touched.
+I built the workflows and orchestration in Python with LiveKit, and tuned the prompts for consistency across long sessions. This needed more structure than a single chat loop. Explicit orchestration and careful prompt structure took more design work upfront, but made handoffs and recovery more predictable.
 
-The interesting constraint was keeping agents stable when context grew and tools failed mid-turn. Explicit orchestration and careful prompt structure cost more upfront design than a single chat loop, but they made handoffs and recovery predictable.
+![SynTwin voice agent showing its listening state during a call](/static/images/work/syntwin.webp)
 
-I worked part-time with the CTO and a small team of five through April 2026 on end-to-end system design for the platform. [Visit SynTwin](https://syntwin.ai) to learn more about the product.
+_The call interface, with the agent in its listening state._
+
+My work also reached into that user-facing side of the platform. I built a React/Vite interface connected to Supabase for authentication and real-time sync. Docker kept the backend services portable as I moved between agent design, infrastructure, and the interface.
+
+I worked part-time with the CTO and a small team of five on end-to-end system design through April 2026. My part covered both how the agents behaved and the application around them. The public product is at [SynTwin](https://syntwin.ai).

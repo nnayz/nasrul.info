@@ -5,10 +5,20 @@ kind: personal
 start: 2026-06
 ---
 
-People learning machine learning had LeetCode for algorithms and little else for coding drills, math problems, and interview-style questions with real feedback. Course sites leaned on video; scratch notebooks never tracked what you could actually do.
+There was a gap between watching a machine-learning course and sitting down to solve something. LeetCode covered algorithm practice, but there were fewer places for ML coding drills, math, and conceptual questions with feedback. A scratch notebook could hold the work, but it didn't track what a learner could actually do.
 
-I built MLdrills as a full practice product: coding, math, and conceptual drills, ordered tracks, interview sets, and larger projects. Learners work in the browser, get graded immediately, and keep a record of submissions, streaks, and solved work. The learner app and project IDE use React, TypeScript, and TanStack Start; a FastAPI API handles Supabase auth and data alongside isolated Python grading on Modal.
+I built MLdrills around solving problems in the browser. There are individual drills, ordered tracks, interview sets, and larger projects. Submissions get graded, and solved work, previous attempts, and streaks stay attached to the learner's account.
 
-The hard split was keeping hidden tests and grading off the client while still feeling instant. Submissions go through the API into sandboxed runs; the browser only polls results. That cost extra orchestration and a second deploy surface, but it meant I could ship real graders without leaking solutions.
+The project IDE gives the larger exercises somewhere to live alongside the shorter drills. Both it and the learner app use React, TypeScript, and TanStack Start.
 
-I later pulled the in-browser editor and Python trace tooling into separate packages so the IDE could stay lean. [Try MLdrills](https://mldrills.com); it is still under active development.
+## What stays outside the browser
+
+The grading boundary shaped quite a bit of the product. I wanted quick feedback, but hidden tests couldn't live alongside the editor in the client.
+
+I put grading behind a FastAPI API, which also handles Supabase auth and data. A submission goes through that API into an isolated Python run on Modal. The browser polls for the result; it doesn't run the hidden tests itself.
+
+That means more orchestration and a separate deployment to look after. It also keeps the tests and grading logic off the client. The interaction looks like submitting code and getting feedback, but there's a boundary in between that I needed to preserve.
+
+Later, I pulled the in-browser editor and Python trace tooling into separate packages to keep the IDE lean. Those pieces no longer have to sit inside the application itself.
+
+[MLdrills is live](https://mldrills.com) and still under active development.

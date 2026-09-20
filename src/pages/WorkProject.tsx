@@ -15,7 +15,6 @@ export default function WorkProject({ slug }: { slug: string }) {
       metadata={highlightMeta(highlight) || kindLabels[highlight.kind]}
       title={highlight.title}
     >
-      <p>{highlight.summary}</p>
       <MDXDocument collection="highlights" slug={slug} />
     </ArticleLayout>
   );

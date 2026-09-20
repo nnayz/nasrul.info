@@ -8,10 +8,10 @@ start: 2025-10
 end: 2026-01
 ---
 
-New species and call types show up with almost no labels. Standard classifiers need large sets per class; field work rarely provides that.
+I trained this animal-call model on tasks with only a few examples per class, following a DCASE-style few-shot setup. That fits a constraint of field recordings: a new species or call type may have only a handful of labelled clips.
 
-For a DCASE-style few-shot setup I trained PyTorch Prototypical Networks on episodic N-way K-shot tasks over animal vocalizations. Torchaudio turned each clip into log-mel and PCEN features once, then training used the saved arrays. I compared several encoders, from a ResNet baseline through attention and transformer variants to a pretrained EfficientNet path, with PyTorch Lightning, Hydra, and MLflow around the runs.
+I used Prototypical Networks in PyTorch for those episodic N-way K-shot tasks. For the audio input, I used Torchaudio to compute log-mel and PCEN features once and saved the arrays for training. That made the first pass slower, but it kept repeated feature processing out of the training loop.
 
-Precomputing features slowed the first pass but made episodic training fast enough to iterate on architecture and distance metrics. The meta-learning framing bought adaptation from a handful of clips at the cost of a more complex data pipeline than a flat classifier.
+With the saved features, episodic training was fast enough to compare architectures and distance metrics. I tried a ResNet baseline, attention and transformer variants, and a pretrained EfficientNet option. PyTorch Lightning, Hydra, and MLflow supported the training runs, configuration, and tracking.
 
-Training and evaluation commands are packaged in a small CLI in the [public repository](https://github.com/nnayz/prototypical-networks-bioacoustics).
+The few-shot approach allowed adaptation from a small number of clips. It also left me with a more complex data pipeline than a flat classifier would need. The [public repository](https://github.com/nnayz/prototypical-networks-bioacoustics) includes a small CLI with commands for training and evaluation.

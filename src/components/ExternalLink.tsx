@@ -10,6 +10,26 @@ interface Props extends Omit<
 
 const SITE_HOSTNAME = 'nasrul.info';
 
+export function ExternalChevron({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      viewBox="0 0 10 10"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.2 7L7 3.2M7 3.2H3.9M7 3.2V6.3"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
 export function isExternalHttpHref(href: string) {
   try {
     const url = new URL(href);
@@ -37,21 +57,7 @@ export default function ExternalLink({ children, href, ...props }: Props) {
       target="_blank"
     >
       <span className="relative z-10">{children}</span>
-      <svg
-        aria-hidden="true"
-        className="relative z-10 ml-[0.35em] size-[0.62em] opacity-50 transition-all duration-160 group-hover:opacity-[0.85] group-focus-visible:opacity-[0.85] motion-reduce:transition-none"
-        fill="none"
-        viewBox="0 0 10 10"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M3.2 7L7 3.2M7 3.2H3.9M7 3.2V6.3"
-          stroke="currentColor"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.8"
-        />
-      </svg>
+      <ExternalChevron className="relative z-10 ml-[0.35em] size-[0.62em] opacity-50 transition-all duration-160 group-hover:opacity-[0.85] group-focus-visible:opacity-[0.85] motion-reduce:transition-none" />
       <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );

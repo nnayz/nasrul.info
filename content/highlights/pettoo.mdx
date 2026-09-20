@@ -8,10 +8,10 @@ start: 2025-06
 end: 2025-09
 ---
 
-Pettoo needed a backend that could list services, take bookings, sell products, and connect pet owners without turning into an unmaintainable pile of endpoints.
+Service listings, bookings, product sales, and connections between pet owners all had a place in Pettoo's backend. I designed its schema and core business logic with FastAPI and PostgreSQL, keeping products and services in the same data model rather than treating them as separate systems.
 
-I designed the schema and core business logic on FastAPI and PostgreSQL, added Elasticsearch for search, and set up CI/CD and container deploys on GCP. I also coordinated a team of three so API shape and quality stayed consistent.
+Search was one part of that work where the simpler option was not enough. Pet owners needed to find what they were looking for, and SQL `ILIKE` queries could not cover the discovery needs. I added Elasticsearch, accepting the extra operational work that came with another service to run.
 
-Search and booking shared one data model carefully enough that product and services did not fork into separate worlds. Elasticsearch added ops surface area, but owner-facing discovery needed it more than SQL ILIKE could give.
+I also set up CI/CD and container deployments on GCP. Alongside the implementation, I coordinated a team of three, with attention to keeping the APIs consistent in both shape and quality.
 
-You can [visit Pettoo](https://pettoo.de) to see the public site; the engagement ran through September 2025.
+I worked with Pettoo through September 2025. The public site is at [Pettoo](https://pettoo.de).

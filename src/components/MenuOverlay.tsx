@@ -19,7 +19,7 @@ import { useEffect } from 'react';
 
 const pages = [
   { label: 'home', to: '/' },
-  { label: 'highlights', to: '/highlights' },
+  { label: 'work', to: '/work' },
   { label: 'consulting', to: '/consulting' },
   { label: 'writing', to: '/writing' },
   { label: 'resources', to: '/resources' },
@@ -82,7 +82,7 @@ export default function MenuOverlay() {
         {open && (
           <motion.nav
             aria-label="Primary"
-            className="pointer-events-auto fixed top-[var(--page-inset-y)] right-[var(--page-inset-x)] bottom-[var(--page-inset-y)] z-[80] flex w-[min(24rem,calc(100%_-_2*var(--page-inset-x)))] min-h-0 flex-col overflow-hidden bg-neutral-950 p-6 text-neutral-50 shadow-2xl ring-1 ring-white/10 sm:p-8 dark:bg-neutral-50 dark:text-neutral-950 dark:ring-black/5"
+            className="pointer-events-auto fixed top-[var(--page-inset-y)] right-[var(--page-inset-x)] bottom-[var(--page-inset-y)] z-[80] flex min-h-0 w-[min(24rem,calc(100%_-_2*var(--page-inset-x)))] flex-col overflow-hidden bg-neutral-950 p-6 text-neutral-50 shadow-2xl ring-1 ring-white/10 sm:p-8 dark:bg-neutral-50 dark:text-neutral-950 dark:ring-black/5"
             exit={{
               opacity: 0,
               transition: { duration: 0.4, ease: EASE_INOUT },
@@ -124,7 +124,11 @@ export default function MenuOverlay() {
 
             <div className="relative flex flex-1 flex-col justify-center gap-1">
               {pages.map((p, i) => {
-                const active = isActive(pathname, p.to);
+                const active =
+                  p.to === '/work'
+                    ? pathname.startsWith('/work') ||
+                      pathname.startsWith('/highlights')
+                    : isActive(pathname, p.to);
                 return (
                   <div className="overflow-hidden" key={p.to}>
                     <motion.div

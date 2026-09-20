@@ -14,9 +14,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   });
   const isHome = pathname === '/';
   const isArticle =
-    pathname.startsWith('/writing/') || pathname.startsWith('/highlights/');
+    pathname.startsWith('/writing/') ||
+    pathname.startsWith('/highlights/') ||
+    pathname.startsWith('/work/');
   const isEditorial =
-    pathname === '/writing' || pathname === '/highlights' || isArticle;
+    pathname === '/writing' ||
+    pathname === '/highlights' ||
+    pathname === '/work' ||
+    isArticle;
   const isPlayground = pathname === '/playground';
   return (
     <div
