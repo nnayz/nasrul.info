@@ -23,14 +23,18 @@ export default function AudioToggle() {
       aria-pressed={on}
       className={cn(
         'pointer-events-auto fixed right-[var(--page-inset-x)] bottom-[var(--page-inset-x)] z-40',
-        'flex h-9 w-9 items-center justify-center rounded-full',
-        'border border-black/15 bg-paper/80 backdrop-blur-sm dark:border-white/15 dark:bg-neutral-900/60',
-        'text-tertiary hover:text-primary transition-colors',
+        'flex h-8 w-8 items-center justify-center rounded-full',
+        'bg-neutral-950 text-neutral-50 transition-transform duration-300 ease-out hover:scale-110',
+        'dark:bg-neutral-50 dark:text-neutral-950',
       )}
       onClick={toggle}
       type="button"
     >
-      {on ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+      {on ? (
+        <Volume2 className="h-3.5 w-3.5" strokeWidth={2.25} />
+      ) : (
+        <VolumeX className="h-3.5 w-3.5" strokeWidth={2.25} />
+      )}
     </button>
   );
 }

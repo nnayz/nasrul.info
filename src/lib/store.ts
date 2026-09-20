@@ -32,7 +32,7 @@ let state: State = {
   presetSignal: 0,
   restartSequenceSignal: 0,
   sequencerPlaying: false,
-  sound: 'off',
+  sound: 'on',
   stepsPerBeat: 4,
   tempo: 108,
   volume: 0.72,

@@ -82,13 +82,13 @@ export default function MenuOverlay() {
         {open && (
           <motion.nav
             aria-label="Primary"
-            className="pointer-events-auto fixed top-[var(--page-inset-y)] right-[var(--page-inset-x)] bottom-[var(--page-inset-y)] z-[80] flex min-h-0 w-[min(24rem,calc(100%_-_2*var(--page-inset-x)))] flex-col overflow-hidden bg-neutral-950 p-6 text-neutral-50 shadow-2xl ring-1 ring-white/10 sm:p-8 dark:bg-neutral-50 dark:text-neutral-950 dark:ring-black/5"
+            className="pointer-events-auto fixed top-[var(--page-inset-y)] right-[var(--page-inset-x)] z-[80] flex min-h-0 w-[min(18rem,calc(100%_-_2*var(--page-inset-x)))] flex-col gap-5 overflow-hidden bg-neutral-950 p-4 text-neutral-50 shadow-2xl ring-1 ring-white/10 sm:p-5 dark:bg-neutral-50 dark:text-neutral-950 dark:ring-black/5"
             exit={{
               opacity: 0,
               transition: { duration: 0.4, ease: EASE_INOUT },
             }}
             layoutId={MENU_SURFACE}
-            style={{ borderRadius: 24 }}
+            style={{ borderRadius: 18 }}
             transition={MENU_MORPH}
           >
             <motion.div
@@ -99,30 +99,29 @@ export default function MenuOverlay() {
             >
               <Link
                 aria-label="Playground"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1EFFB8] text-black transition-transform duration-300 ease-out hover:scale-110"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1EFFB8] text-black transition-transform duration-300 ease-out hover:scale-110"
                 onClick={() => play('click')}
                 to="/playground"
               >
-                <Music2 className="h-4 w-4" strokeWidth={2.25} />
+                <Music2 className="h-3.5 w-3.5" strokeWidth={2.25} />
               </Link>
               <button
-                className="group flex items-center gap-2 rounded-full bg-[#FF1E48] py-1 pr-1 pl-4 text-white lowercase transition-transform duration-300 ease-out hover:scale-105"
+                aria-label="Close menu"
+                className="group flex h-8 w-8 items-center justify-center rounded-full bg-[#FF1E48] text-white transition-transform duration-300 ease-out hover:scale-105"
                 onClick={() => {
                   play('click');
                   store.setMenu(false);
                 }}
                 type="button"
               >
-                <span className="font-menu text-base font-medium tracking-[-0.02em] text-white">
-                  close
-                </span>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover:rotate-90">
-                  <X className="h-4 w-4" strokeWidth={2.5} />
-                </span>
+                <X
+                  className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-90"
+                  strokeWidth={2.5}
+                />
               </button>
             </motion.div>
 
-            <div className="relative flex flex-1 flex-col justify-center gap-1">
+            <div className="relative flex flex-col gap-0">
               {pages.map((p, i) => {
                 const active =
                   p.to === '/work'
@@ -141,22 +140,22 @@ export default function MenuOverlay() {
                       }}
                     >
                       <Link
-                        className="group font-menu flex items-baseline gap-4"
+                        className="group font-menu flex items-baseline gap-2.5"
                         onClick={() => play('click')}
                         to={p.to}
                       >
                         <span
-                          className="font-menu inline-flex items-baseline gap-3 font-normal tracking-[-0.045em] opacity-40 transition-opacity group-hover:opacity-100 data-[active]:opacity-100"
+                          className="font-menu inline-flex items-baseline gap-2 font-normal tracking-[-0.045em] opacity-40 transition-opacity group-hover:opacity-100 data-[active]:opacity-100"
                           data-active={active || undefined}
                           style={{
-                            fontSize: 'clamp(1.75rem, 5.8vh, 3.5rem)',
-                            lineHeight: 1.05,
+                            fontSize: 'clamp(1.25rem, 4vh, 2.25rem)',
+                            lineHeight: 1.1,
                           }}
                         >
                           {p.label}
                         </span>
                         {active && (
-                          <span className="h-2 w-2 shrink-0 rounded-full bg-neutral-50 dark:bg-neutral-950" />
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-50 dark:bg-neutral-950" />
                         )}
                       </Link>
                     </motion.div>
@@ -171,18 +170,18 @@ export default function MenuOverlay() {
               initial={{ opacity: 0 }}
               transition={{ delay: 0.55, duration: 0.5 }}
             >
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 {socials.map((s) => (
                   <a
                     aria-label={s.label}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-neutral-50 text-neutral-950 transition-transform duration-300 ease-out hover:scale-110 dark:bg-neutral-950 dark:text-neutral-50"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50 text-neutral-950 transition-transform duration-300 ease-out hover:scale-110 dark:bg-neutral-950 dark:text-neutral-50"
                     href={s.href}
                     key={s.label}
                     onClick={() => play('click')}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    <s.icon className="h-4 w-4" />
+                    <s.icon className="h-3.5 w-3.5" />
                   </a>
                 ))}
               </div>

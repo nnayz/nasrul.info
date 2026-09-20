@@ -1,8 +1,7 @@
 /**
  * A cursor-driven highlight for the background grid. Nearby cell interiors
- * fill with white while clicks place pitched green notes into a looping spatial
- * sequencer. Horizontal position is time, vertical position is pitch, and old
- * notes slowly fade out of the composition.
+ * fill with white while clicks place pitched green notes. Vertical position is
+ * pitch, and old notes slowly fade out of the composition.
  */
 import { initAudio, playGridNote } from '@/lib/audio';
 import { store } from '@/lib/store';
@@ -29,14 +28,7 @@ const TRAIL_DURATION = 180;
 const TRAIL_SPACING = 5;
 const MAX_TRAIL_POINTS = 12;
 const SOUND_INTERVAL = 120;
-const TEMPO = 108;
-const STEP_DURATION = (60 / TEMPO / 4) * 1000;
-const SEQUENCE_STEPS = 32;
-const LOOP_DURATION = STEP_DURATION * SEQUENCE_STEPS;
-const LOCK_DURATION = Math.max(18000, LOOP_DURATION * 4.25);
-const SCHEDULER_INTERVAL = 25;
-const SCHEDULER_LOOKAHEAD = 100;
-const MAX_STEP_VOICES = 12;
+const LOCK_DURATION = 18000;
 const LOCK_HOLD = 1800;
 const LOCK_PULSE_DURATION = 460;
 const LOCK_COLOR = '30,255,184';
@@ -47,28 +39,6 @@ const INTERACTIVE_SELECTOR =
 // Rows form a C-major piano roll. The bottom row starts at C2 and rises through
 // the scale, keeping random clicks harmonic while retaining melodic direction.
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
-
-function selectStepVoices(notes: LockedNote[]) {
-  const newestByPitch = new Map<number, LockedNote>();
-  for (const note of notes) {
-    const existing = newestByPitch.get(note.detune);
-    if (!existing || note.createdAt > existing.createdAt) {
-      newestByPitch.set(note.detune, note);
-    }
-  }
-
-  const pitches = [...newestByPitch.values()].sort(
-    (first, second) => first.detune - second.detune,
-  );
-  if (pitches.length <= MAX_STEP_VOICES) return pitches;
-
-  return Array.from({ length: MAX_STEP_VOICES }, (_, index) => {
-    const pitchIndex = Math.round(
-      (index * (pitches.length - 1)) / (MAX_STEP_VOICES - 1),
-    );
-    return pitches[pitchIndex];
-  });
-}
 
 export default function CursorTrail() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -96,10 +66,6 @@ export default function CursorTrail() {
     let trail: TrailPoint[] = [];
     let locks: LockedNote[] = [];
     let hasLocked = false;
-    let transportStartedAt: number | null = null;
-    let nextSequenceStep = 0;
-    let nextStepAt = 0;
-    let schedulerTimer: number | null = null;
     let initialized = false;
     let pointerInside = false;
     let pointerLeftAt = 0;
@@ -210,12 +176,6 @@ export default function CursorTrail() {
 
     const panForX = (x: number) => (x / Math.max(width, 1)) * 1.5 - 0.75;
 
-    const sequenceStepForX = (x: number) =>
-      Math.min(
-        Math.floor((x / Math.max(width, 1)) * SEQUENCE_STEPS),
-        SEQUENCE_STEPS - 1,
-      );
-
     const scheduleHint = (event: PointerEvent) => {
       const appState = store.get();
       const targetElement =
@@ -261,97 +221,6 @@ export default function CursorTrail() {
       previousSoundAt = now;
     };
 
-    const scheduleSequencer = () => {
-      if (
-        transportStartedAt === null ||
-        locks.length === 0 ||
-        document.visibilityState === 'hidden'
-      )
-        return;
-
-      const now = performance.now();
-      if (nextStepAt < now - STEP_DURATION) {
-        const missedSteps = Math.floor((now - nextStepAt) / STEP_DURATION);
-        nextSequenceStep += missedSteps;
-        nextStepAt += missedSteps * STEP_DURATION;
-      }
-
-      while (nextStepAt <= now + SCHEDULER_LOOKAHEAD) {
-        const activeStep =
-          ((nextSequenceStep % SEQUENCE_STEPS) + SEQUENCE_STEPS) %
-          SEQUENCE_STEPS;
-        const delay = Math.max(0, (nextStepAt - now) / 1000);
-        const stepNotes: LockedNote[] = [];
-
-        for (const lock of locks) {
-          const age = nextStepAt - lock.createdAt;
-          if (
-            sequenceStepForX(lock.x) !== activeStep ||
-            age < STEP_DURATION * 0.65 ||
-            age >= LOCK_DURATION
-          )
-            continue;
-
-          lock.lastPlayedAt = nextStepAt;
-          stepNotes.push(lock);
-        }
-
-        const voices = selectStepVoices(stepNotes);
-        const densityGain = Math.min(
-          1,
-          Math.sqrt(6 / Math.max(voices.length, 1)),
-        );
-        for (const voice of voices) {
-          const age = nextStepAt - voice.createdAt;
-          const life = 1 - age / LOCK_DURATION;
-          playGridNote(voice.detune, {
-            delay,
-            gain: (0.48 + life * 0.42) * densityGain,
-            pan: panForX(voice.x),
-          });
-        }
-
-        nextSequenceStep += 1;
-        nextStepAt += STEP_DURATION;
-      }
-    };
-
-    const startTransport = (now: number, x: number) => {
-      if (transportStartedAt !== null) return;
-      const startingStep = sequenceStepForX(x);
-      transportStartedAt = now - startingStep * STEP_DURATION;
-      nextSequenceStep = startingStep + 1;
-      nextStepAt = now + STEP_DURATION;
-      schedulerTimer = window.setInterval(
-        scheduleSequencer,
-        SCHEDULER_INTERVAL,
-      );
-    };
-
-    const stopTransport = () => {
-      if (schedulerTimer !== null) window.clearInterval(schedulerTimer);
-      schedulerTimer = null;
-      transportStartedAt = null;
-      nextSequenceStep = 0;
-      nextStepAt = 0;
-    };
-
-    const drawPlayhead = (now: number) => {
-      if (transportStartedAt === null || locks.length === 0) return;
-
-      const travelled =
-        ((now - transportStartedAt) / STEP_DURATION) * (width / SEQUENCE_STEPS);
-      const x = ((travelled % width) + width) % width;
-      const edgeFade = Math.sin(Math.min(Math.max(x / width, 0), 1) * Math.PI);
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, 'rgba(30,255,184,0)');
-      gradient.addColorStop(0.22, `rgba(30,255,184,${0.09 * edgeFade})`);
-      gradient.addColorStop(0.62, `rgba(30,255,184,${0.09 * edgeFade})`);
-      gradient.addColorStop(1, 'rgba(30,255,184,0)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(Math.round(x), 0, 1, height);
-    };
-
     const draw = (now: number) => {
       raf = 0;
       const delta = Math.min((now - previousFrame) / 1000, 0.05);
@@ -367,14 +236,11 @@ export default function CursorTrail() {
 
       trail = trail.filter((point) => now - point.createdAt < TRAIL_DURATION);
       locks = locks.filter((lock) => now - lock.createdAt < LOCK_DURATION);
-      if (locks.length === 0 && transportStartedAt !== null) stopTransport();
       ctx.clearRect(0, 0, width, height);
 
       const dark = document.documentElement.classList.contains('dark');
       const trailOpacity = dark ? 0.028 : 0.045;
       const glowOpacity = dark ? 0.78 : 1;
-
-      drawPlayhead(now);
 
       for (const lock of locks) {
         const age = now - lock.createdAt;
@@ -453,7 +319,6 @@ export default function CursorTrail() {
         });
       }
 
-      startTransport(now, x);
       hasLocked = true;
       if (audible) playGridNote(detune, { delay, gain, pan: panForX(x) });
       requestDraw();
@@ -603,7 +468,6 @@ export default function CursorTrail() {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       themeObserver.disconnect();
       if (hintTimer !== null) window.clearTimeout(hintTimer);
-      stopTransport();
       cancelAnimationFrame(raf);
     };
   }, []);

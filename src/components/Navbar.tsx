@@ -7,9 +7,9 @@ import { play } from '@/lib/audio';
 import { cn } from '@/lib/className';
 import { MENU_MORPH, MENU_SURFACE } from '@/lib/motion';
 import { store, useStore } from '@/lib/store';
-import { MoonIcon, SunIcon } from '@heroicons/react/24/solid';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 export default function Navbar() {
@@ -50,17 +50,20 @@ export default function Navbar() {
         <button
           aria-label="Toggle theme"
           className={cn(
-            'pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full',
-            'text-tertiary border border-black/15 transition-colors dark:border-white/15',
-            'hover:text-primary',
+            'pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full',
+            'bg-neutral-950 text-neutral-50 transition-transform duration-300 ease-out hover:scale-110',
+            'dark:bg-neutral-50 dark:text-neutral-950',
           )}
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          onClick={() => {
+            play('click');
+            setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+          }}
           type="button"
         >
           {resolvedTheme === 'dark' ? (
-            <SunIcon className="h-4 w-4" />
+            <Sun className="h-3.5 w-3.5" strokeWidth={2.25} />
           ) : (
-            <MoonIcon className="h-4 w-4" />
+            <Moon className="h-3.5 w-3.5" strokeWidth={2.25} />
           )}
         </button>
 
