@@ -97,6 +97,12 @@ function AboutMe() {
       <div className="outliner pointer-events-auto">
         <OutlinerParent count={2} defaultOpen label={<NowLabel />}>
           <OutlinerLeaf>
+            ai engineer at{' '}
+            <Mention external href='https://pharos-labs.com'>
+              pharoslabs
+            </Mention>
+          </OutlinerLeaf>
+          <OutlinerLeaf>
             studying data science and AI at{' '}
             <Mention external href="https://www.uni-hamburg.de">
               University of Hamburg
