@@ -1,5 +1,5 @@
 /**
- * Mike Matas-style custom cursor from cretu.dev. Smooth follow, grows on
+ * Mike Matas-style custom cursor. Smooth follow, grows on
  * interactive targets, becomes an I-beam over text, and presses on click.
  * Fine-pointer devices only.
  */
