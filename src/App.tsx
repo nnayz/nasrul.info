@@ -1,4 +1,5 @@
 import { cn } from '@/lib/className';
+import AnalyticsTracker from '@components/AnalyticsTracker';
 import AudioToggle from '@components/AudioToggle';
 import Background from '@components/Background';
 import CustomCursor from '@components/CustomCursor';
@@ -53,6 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {!isPlayground && <AudioToggle />}
       <Analytics />
+      <AnalyticsTracker />
     </div>
   );
 }

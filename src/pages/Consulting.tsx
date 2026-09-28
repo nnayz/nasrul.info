@@ -1,4 +1,5 @@
 /** Consulting intro and live Cal.com booking page. */
+import { trackEvent } from '@/lib/analytics';
 import { EASE_EXPO } from '@/lib/motion';
 import Cal, { getCalApi } from '@calcom/embed-react';
 import EmailLink from '@components/EmailLink';
@@ -28,6 +29,12 @@ export default function Consulting() {
         hideEventTypeDetails: false,
         layout: 'month_view',
         theme,
+      });
+      cal('on', {
+        action: 'bookingSuccessful',
+        callback: () => {
+          trackEvent('Booking');
+        },
       });
     })();
     return () => {
